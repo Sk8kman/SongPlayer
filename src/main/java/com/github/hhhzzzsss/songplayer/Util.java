@@ -47,7 +47,7 @@ public class Util {
         SongPlayer.addChatMessage("§6Loading §3" + Util.playlistSongs.get(Util.playlistIndex) + "§6 from playlist §3" + Util.currentPlaylist + "§6 | §9" + bruh + "/" + Util.playlistSongs.size());
         SongHandler.getInstance().loadSong(Util.playlistSongs.get(Util.playlistIndex), new File("SongPlayer/playlists/" + Util.currentPlaylist));
     }
-    public static final float[] getAngleAtBlock(BlockPos to) {
+    public static float[] getAngleAtBlock(BlockPos to) {
         BlockPos playerPos = Stage.position;
         double dx = to.getX() - playerPos.getX();
         double dy = to.getY() - (playerPos.getY() + 1);
@@ -131,7 +131,7 @@ public class Util {
     public static void updateValuesToConfig() {
         SongPlayer.creativeCommand = ModProperties.getInstance().getConfig().getProperty("creativeCommand", "gamemode creative");
         SongPlayer.survivalCommand = ModProperties.getInstance().getConfig().getProperty("survivalCommand", "gamemode survival");
-        SongPlayer.playSoundCommand = ModProperties.getInstance().getConfig().getProperty("playSoundCommand", "playsound minecraft:block.note_block.{type} player @a ~ ~ ~ 100 {pitch}");
+        SongPlayer.playSoundCommand = ModProperties.getInstance().getConfig().getProperty("playSoundCommand", "playsound minecraft:block.note_block.{type} record @a ~ ~ ~ 100 {pitch}");
         SongPlayer.stageType = ModProperties.getInstance().getConfig().getProperty("stageType", "default");
         SongPlayer.rotate = Boolean.parseBoolean(ModProperties.getInstance().getConfig().getProperty("rotate", "false"));
         SongPlayer.swing = Boolean.parseBoolean(ModProperties.getInstance().getConfig().getProperty("swing", "false"));

@@ -20,10 +20,8 @@ try to play the song using only commands such as /playsound depending on your se
 All the commands are not case-insensitive.
 
 ### $help
-Lists all SongPlayer commands
-
-### $help \<command>
-Explains a command and shows the command usage.
+### OR: $help \<command>
+Lists all SongPlayer commands or explains a command and shows the command usage.
 
 ### $play \<filename or url>
 Plays a particular midi from the .minecraft/songs folder, or, if a url is specified, downloads the song at that url and tries to play it.
@@ -57,9 +55,9 @@ Example: `$prefix !` will change commands to `!example command` instead of `$exa
 
 ### $toggle <swing, rotate, allMovements> <true, false>
 Toggles certain features I added as ideas when forking this. All are toggled to false by default.
-- Swing: weather you swing your hand when you play a noteblock
-- Rotate: weather you rotate to the noteblock you are placing / playing
 - allMovements: toggles all movement-related features at once such as swing and rotate
+- Rotate: weather you rotate to the noteblock you are placing / playing
+- Swing: weather you swing your hand when you play a noteblock
 
 ### $stop
 Stops playing/building and clears the queue or playlist.
@@ -79,26 +77,28 @@ Toggles song looping.
 Gets the status of the current song that is playing.
 
 ### $queue
-*aliases: `$showqueue`*
+*aliases: `$showQueue`*
 
 Shows all the songs in the queue or playlist.
 
 ### $songs
-*aliases: `$list`*
+*aliases: `$list`, `$listSongs`*
 
 Lists the songs in your .minecraft/songs folder.
 
 ### $setCommand <creative, survival, playnote, displayprogress> \<command>
+*aliases: `$setCmd`*
+
 Changes what command is used for certain circumstances.
 
 ### $setCreativeCommand \<command>
-*aliases: `$sc`*
+*aliases: `$sc`, `$creativeCommand`*
 
 Shortcut for `$setCommand creative`
 For example, if the server uses vanilla commands, do `$setCreativeCommand /gamemode creative`.
 
 ### $setSurvivalCommand \<command>
-*aliases: `$ss`*
+*aliases: `$ss`, `$survivalCommand`*
 
 Shortcut for `$setCommand survival`
 For example, if the server uses vanilla commands, do `$setSurvivalCommand /gamemode survival`.
@@ -148,6 +148,14 @@ SongPlayer will read the song file and play it on your game. No one else can hea
 This is nice if you want to test out song files before playing them for everyone else, or if you just want to enjoy your songs without any interruptions of other players.
 
 # --- CHANGELOGS ---
+### 3.1.2
+```
+- Fixed an issue where you wouldn't teleport to the center of the stage server-side when you start a song, causing some noteblocks to not be placed
+- Changed the default command of playnote - replaced "player" with "record" (whoops)
+- Minor changes to chat messages & typo fixes
+- Added more command aliases
+```
+
 ### 3.1.1
 ```
 - Fixed an issue where the mod would switch to creative when it did not have to

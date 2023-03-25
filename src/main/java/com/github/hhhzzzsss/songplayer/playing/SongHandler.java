@@ -131,6 +131,7 @@ public class SongHandler {
         }
         if (stage == null) {
             stage = new Stage();
+            stage.movePlayerToStagePosition();
         }
         stage.movePlayerToStagePosition(true, false, true);
         stage.checkBuildStatus(currentSong);
@@ -145,7 +146,7 @@ public class SongHandler {
 
     private void queueSong(Song song) {
         if (!Util.playlistSongs.isEmpty() || !Util.currentPlaylist.isEmpty()) {
-            SongPlayer.addChatMessage("§cUnable to add song to queue. Playlist is in progress.");
+            SongPlayer.addChatMessage("§cUnable to add song to queue; Playlist is in progress");
             return;
         }
         songQueue.add(song);

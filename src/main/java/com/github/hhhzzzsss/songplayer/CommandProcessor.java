@@ -7,13 +7,9 @@ import com.github.hhhzzzsss.songplayer.song.Song;
 import com.google.common.io.Files;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import org.apache.commons.io.FileUtils;
 
@@ -76,24 +72,24 @@ public class CommandProcessor {
 		} else {
 			boolean success = c.processCommand(args);
 			if (!success) {
-				SongPlayer.addChatMessage("§6Syntax - §c" + c.getSyntax());
+				SongPlayer.addChatMessage("§6Syntax - §c" + SongPlayer.prefix + c.getSyntax());
 			}
 		}
 		return true;
 	}
 
 	private static abstract class Command {
-    	public abstract String getName();
-    	public abstract String getSyntax();
-    	public abstract String getDescription();
-    	public abstract boolean processCommand(String args);
+		public abstract String getName();
+		public abstract String getSyntax();
+		public abstract String getDescription();
+		public abstract boolean processCommand(String args);
 		public String[] getAliases() {
 			return new String[]{};
 		}
 		public CompletableFuture<Suggestions> getSuggestions(String args, SuggestionsBuilder suggestionsBuilder) {
 			return null;
 		}
-    }
+	}
 
 	private static class setCommandCommand extends Command {
 		@Override
@@ -105,12 +101,12 @@ public class CommandProcessor {
 
 		@Override
 		public String getSyntax() {
-			return SongPlayer.prefix + "setCommand <survival, creative, playnote, displayprogress> <command>";
+			return "setCommand <survival, creative, playnote, displayprogress> <command>";
 		}
 
 		@Override
 		public String getDescription() {
-			return "Changes what commands to run while playing. Use " + SongPlayer.prefix + "setCommand <command name> to get more information about when that command will be ran.\n[There are variables like: {type} = instrument, {volume} = 0.0 - 1.0, {pitch} = pitch of note, {CurrentTime} | {SongTime} = time the song has progressed | duration of song, {MIDI} = current song playing]";
+			return "Changes what commands to run while playing. Use §9" + SongPlayer.prefix + "setCommand <command name>§3 to check what it is set to. You can set commands to §9/§3 to disable them from running.\n[There are variables like: {type} = instrument, {volume} = 0.0 - 1.0, {pitch} = pitch of note, {CurrentTime} | {SongTime} = time the song has progressed | duration of song, {MIDI} = current song playing]";
 		}
 
 		@Override
@@ -125,7 +121,11 @@ public class CommandProcessor {
 			for (int i = 0; i < Commands.length; i++) {
 				if (theArgs[0].equalsIgnoreCase(Commands[i])) {
 					if (theArgs.length == 1) {
-						SongPlayer.addChatMessage("§6The command §3" + Commands[i] + "§6 is currently set to: §3/" + Values[i]);
+						if (Values[i].isEmpty()) {
+							SongPlayer.addChatMessage("§6The command §9" + Commands[i] + "§6 is currently disabled");
+						} else {
+							SongPlayer.addChatMessage("§6The command §9" + Commands[i] + "§6 is currently set to: §3/" + Values[i]);
+						}
 						return true;
 					}
 					StringBuilder ncmd = new StringBuilder();
@@ -135,13 +135,21 @@ public class CommandProcessor {
 					}
 					newCommand = ncmd.toString().trim();
 					if (newCommand.startsWith("/")) {
-						newCommand = newCommand.substring(1, newCommand.length());
+						newCommand = newCommand.substring(1);
 					}
 					if (Values[i].equals(newCommand)) {
-						SongPlayer.addChatMessage("§6Nothing changed; command is already set to §3" + Values[i]);
+						if (newCommand.isEmpty()) {
+							SongPlayer.addChatMessage("§6Nothing changed; command is already disabled");
+						} else {
+							SongPlayer.addChatMessage("§6Nothing changed; command is already set to §3/" + Values[i]);
+						}
 						return true;
 					}
-					SongPlayer.addChatMessage("§6The command §3" + Commands[i] + "§6 has been updated\nfrom: §3/" + Values[i] + "\n§6to: §3/" + newCommand);
+					if (newCommand.isEmpty()) {
+						SongPlayer.addChatMessage("§6Disabled §9" + Commands[i] + "§6 command from running");
+					} else {
+						SongPlayer.addChatMessage("§6The command §9" + Commands[i] + "§6 has been updated\nfrom: §3/" + Values[i] + "\n§6to: §3/" + newCommand);
+					}
 					ModProperties.getInstance().updateValue(configName[i], newCommand);
 					Util.updateValuesToConfig();
 					return true;
@@ -175,7 +183,7 @@ public class CommandProcessor {
 		}
 		@Override
 		public String getSyntax() {
-			return SongPlayer.prefix + "playlist edit <playlist> <add, remove> <song>\n§6OR: §c" + SongPlayer.prefix + "playlist <create, delete, play> <playlist>\n§6OR: §c" + SongPlayer.prefix + "playlist sort <addedfirst, alphabetically, shuffle>";
+			return "playlist edit <playlist> <add, remove> <song>\n§6OR: §c" + SongPlayer.prefix + "playlist <create, delete, play> <playlist>\n§6OR: §c" + SongPlayer.prefix + "playlist sort <addedfirst, alphabetically, shuffle>";
 		}
 
 		@Override
@@ -194,7 +202,7 @@ public class CommandProcessor {
 			switch(theArgs[0].toLowerCase()) {
 				case "create": {
 					if (playlist.exists()) {
-						SongPlayer.addChatMessage("§6playlist §3" + theArgs[1] + "§6 already exists!");
+						SongPlayer.addChatMessage("§6Playlist §3" + theArgs[1] + "§6 already exists!");
 						return true;
 					}
 					playlist.mkdir();
@@ -203,16 +211,16 @@ public class CommandProcessor {
 				}
 				case "delete": {
 					if (!playlist.exists()) {
-						SongPlayer.addChatMessage("§6playlist §3" + theArgs[1] + "§6 doesn't exist!");
+						SongPlayer.addChatMessage("§6Playlist §3" + theArgs[1] + "§6 doesn't exist!");
 						return true;
 					}
 					if (Util.currentPlaylist.equals(theArgs[1])) {
-						SongPlayer.addChatMessage("§6you cannot modify playlists that are playing.");
+						SongPlayer.addChatMessage("§6You cannot modify playlists that are playing.");
 						return true;
 					}
 					try {
 						FileUtils.deleteDirectory(playlist);
-						SongPlayer.addChatMessage("§6deleted playlist §3" + theArgs[1]);
+						SongPlayer.addChatMessage("§6Deleted playlist §3" + theArgs[1]);
 					} catch(IOException e) {
 						SongPlayer.addChatMessage("§cThere was an internal error attempting to delete this playlist. Check your logs for more details.");
 						e.printStackTrace();
@@ -226,11 +234,11 @@ public class CommandProcessor {
 						return false;
 					}
 					if (!playlist.exists()) {
-						SongPlayer.addChatMessage("§6playlist §3" + theArgs[1] + "§6 doesn't exist!");
+						SongPlayer.addChatMessage("§6Playlist §3" + theArgs[1] + "§6 doesn't exist!");
 						return true;
 					}
 					if (Util.currentPlaylist.equals(theArgs[1])) {
-						SongPlayer.addChatMessage("§6you cannot modify playlists that are playing.");
+						SongPlayer.addChatMessage("§6You cannot modify playlists that are playing.");
 						return true;
 					}
 					StringBuilder miditogetbuilder = new StringBuilder();
@@ -250,7 +258,7 @@ public class CommandProcessor {
 							if (file.equals(miditoget)) {
 								try {
 									Files.copy(toget, new File("SongPlayer/playlists/" + theArgs[1] + "/" + miditoget));
-									SongPlayer.addChatMessage("§6added §3" + miditoget + "§6 to the playlist §9" + theArgs[1]);
+									SongPlayer.addChatMessage("§6Added §3" + miditoget + "§6 to the playlist §9" + theArgs[1]);
 								} catch(IOException e) {
 									e.printStackTrace();
 									SongPlayer.addChatMessage("§cThere was an error copying one or more files.");
@@ -263,31 +271,31 @@ public class CommandProcessor {
 						for (String file : songsfolder.list()) {
 							if (file.equals(miditoget)) {
 								toget.delete();
-								SongPlayer.addChatMessage("§6removed §3" + miditoget + "§6 from the playlist §3" + theArgs[1]);
+								SongPlayer.addChatMessage("§6Removed §3" + miditoget + "§6 from the playlist §3" + theArgs[1]);
 								return true;
 							}
 						}
-						SongPlayer.addChatMessage("§cthat file doesn't exist");
+						SongPlayer.addChatMessage("§cThat file doesn't exist");
 						return true;
 					} else {
 						return false;
 					}
-					SongPlayer.addChatMessage("§cCould not find file.");
+					SongPlayer.addChatMessage("§cCould not find file");
 					return true;
 				}
 				case "play": {
 					if (!Util.currentPlaylist.isEmpty()) {
-						SongPlayer.addChatMessage("§6a playlist is already running!");
+						SongPlayer.addChatMessage("§6A playlist is already running!");
 						return true;
 					}
 					if (!playlist.exists()) {
-						SongPlayer.addChatMessage("§6playlist §3" + theArgs[1] + "§6 doesn't exist!");
+						SongPlayer.addChatMessage("§6Playlist §3" + theArgs[1] + "§6 doesn't exist!");
 						return true;
 					}
 					File[] songs = playlist.listFiles();
 					String[] songnames = playlist.list();
 					if (songs.length == 0) {
-						SongPlayer.addChatMessage("§6no songs in playlist!");
+						SongPlayer.addChatMessage("§6No songs in playlist!");
 						return true;
 					}
 					if (SongHandler.getInstance().stage != null) {
@@ -319,10 +327,10 @@ public class CommandProcessor {
 
 					//SongHandler.getInstance().loadSong(Util.playlistSongs.get(0).getName(), playlist);
 					if (Util.playlistSongs.size() < songs.length) {
-						SongPlayer.addChatMessage("§cFailed to load some songs from playlist.");
+						SongPlayer.addChatMessage("§cFailed to load some songs from playlist");
 					}
 					Util.currentPlaylist = theArgs[1];
-					SongPlayer.addChatMessage("§6loaded §9" + Util.playlistSongs.size() + "§6 songs from the playlist §3" + theArgs[1]);
+					SongPlayer.addChatMessage("§6Loaded §9" + Util.playlistSongs.size() + "§6 songs from the playlist §3" + theArgs[1]);
 					SongHandler.getInstance().loadSong(Util.playlistSongs.get(0), playlist);
 					return true;
 				}
@@ -342,7 +350,7 @@ public class CommandProcessor {
 							return true;
 						}
 						default: {
-							SongPlayer.addChatMessage("§cUnknown order §4" + theArgs[1] + "§c.");
+							SongPlayer.addChatMessage("§cUnknown order §4" + theArgs[1]);
 							return false;
 						}
 					}
@@ -456,7 +464,7 @@ public class CommandProcessor {
 
 		@Override
 		public String getSyntax() {
-			return SongPlayer.prefix + "setStage <default, legacy, compact>";
+			return "setStage <default, legacy, compact>";
 		}
 
 		@Override
@@ -531,7 +539,7 @@ public class CommandProcessor {
 
 		@Override
 		public String getSyntax() {
-			return SongPlayer.prefix + "setPlayMode [client, commands, gamemode]";
+			return "setPlayMode <client, commands, gamemode>";
 		}
 
 		@Override
@@ -560,7 +568,7 @@ public class CommandProcessor {
 					if (SongPlayer.showFakePlayer && SongPlayer.fakePlayer != null) { //fake player is showing
 						SongPlayer.removeFakePlayer();
 					}
-					SongPlayer.addChatMessage("§6Changed method to using commands");
+					SongPlayer.addChatMessage("§6Changed method to §3using commands");
 					if (SongPlayer.useCommandsForPlaying) { //prevent my crappy spaghetti code from breaking - dont run code below if this is already true
 						return true;
 					}
@@ -587,7 +595,7 @@ public class CommandProcessor {
 							SongPlayer.fakePlayer.copyStagePosAndPlayerLook();
 						}
 					}
-					SongPlayer.addChatMessage("§6Changed method to survival only");
+					SongPlayer.addChatMessage("§6Changed method to §3survival only");
 					break;*/
 				}
 				case "gamemode": {
@@ -615,19 +623,13 @@ public class CommandProcessor {
 					if (SongPlayer.showFakePlayer && SongPlayer.fakePlayer != null) { //fake player is showing
 						SongPlayer.removeFakePlayer();
 					}
-					SongPlayer.addChatMessage("§6Changed method to switching gamemode");
-					if (SongHandler.getInstance().currentSong != null) { //player is in the middle of a song
+					SongPlayer.addChatMessage("§6Changed method to §3switching gamemode");
+					if (SongHandler.getInstance().currentSong != null) { //player is in the middle of playing a song
 						Util.enableFlightIfNeeded();
 						SongHandler.getInstance().stage.checkBuildStatus(SongHandler.getInstance().currentSong);
 						if (SongPlayer.MC.interactionManager.getCurrentGameMode() != GameMode.SURVIVAL) {
 							SongPlayer.MC.getNetworkHandler().sendCommand(SongPlayer.survivalCommand);
 						}
-						//SongPlayer.addChatMessage("stage needs rebuilt");
-						//if (SongPlayer.MC.interactionManager.getCurrentGameMode() != GameMode.CREATIVE) {
-						//	SongPlayer.MC.getNetworkHandler().sendCommand(SongPlayer.creativeCommand);
-						//}
-						//SongHandler.getInstance().building = true;
-						//stage does not need rebuilt. send player into survival mod if needed.
 					}
 
 					return true;
@@ -645,7 +647,7 @@ public class CommandProcessor {
 					}
 					Util.disableFlightIfNeeded();
 					Util.updateValuesToConfig();
-					SongPlayer.addChatMessage("§6Changed method to client-side");
+					SongPlayer.addChatMessage("§6Changed method to §3client-side");
 					return true;
 				}
 				default: {
@@ -686,7 +688,7 @@ public class CommandProcessor {
 
 		@Override
 		public String getSyntax() {
-			return SongPlayer.prefix + "prefix [prefix]";
+			return "prefix <command prefix>";
 		}
 
 		@Override
@@ -704,20 +706,20 @@ public class CommandProcessor {
 			String newprefix = arguments[0].toLowerCase();
 
 			if (newprefix.length() > 20) {
-				SongPlayer.addChatMessage("§cprefix can only be up to 20 characters long!");
+				SongPlayer.addChatMessage("§cPrefix can only be up to 20 characters long!");
 				return true;
 			} else if (newprefix.isEmpty()) {
 				return false;
 			} else if (newprefix.startsWith("/")) {
-				SongPlayer.addChatMessage("§cprefix can not start with §4/");
+				SongPlayer.addChatMessage("§cPrefix can not start with §4/");
 				return true;
 			} else if (newprefix.contains(" ")) {
-				SongPlayer.addChatMessage("§cprefix can not contain spaces");
+				SongPlayer.addChatMessage("§cPrefix can not contain spaces");
 				return true;
 			}
 			ModProperties.getInstance().updateValue("prefix", newprefix);
 			Util.updateValuesToConfig();
-			SongPlayer.addChatMessage("§6prefix is set to: §3" + newprefix);
+			SongPlayer.addChatMessage("§6Prefix is set to: §3" + newprefix);
 			return true;
 		}
 	}
@@ -731,7 +733,7 @@ public class CommandProcessor {
 
 		@Override
 		public String getSyntax() {
-			return SongPlayer.prefix + "toggle [swing, rotate, allMovements] [true, false]";
+			return "toggle <swing, rotate, allMovements> <true, false>";
 		}
 
 		@Override
@@ -764,60 +766,25 @@ public class CommandProcessor {
 			}
 
 			switch(arguments[0].toLowerCase()) {
-				case "rotate": {
-					ModProperties.getInstance().updateValue("rotate", toggleto + "");
+				case "allmovements": {
+					ModProperties.getInstance().updateValue("swing", String.valueOf(toggleto));
+					ModProperties.getInstance().updateValue("rotate", String.valueOf(toggleto));
 					Util.updateValuesToConfig();
-					SongPlayer.addChatMessage("§6set rotate to " + toggleto);
+					SongPlayer.addChatMessage("§6Set §9swing§6 and §9rotate§6 to §3" + toggleto);
+					return true;
+				}
+				case "rotate": {
+					ModProperties.getInstance().updateValue("rotate", String.valueOf(toggleto));
+					Util.updateValuesToConfig();
+					SongPlayer.addChatMessage("§6Set §9rotate§6 to §3" + toggleto);
 					return true;
 				}
 				case "swing": {
-					ModProperties.getInstance().updateValue("swing", toggleto + "");
+					ModProperties.getInstance().updateValue("swing", String.valueOf(toggleto));
 					Util.updateValuesToConfig();
-					SongPlayer.addChatMessage("§6set swing to " + toggleto);
+					SongPlayer.addChatMessage("§6Set §9swing§6 to §3" + toggleto);
 					return true;
 				}
-				case "allmovements": {
-					ModProperties.getInstance().updateValue("swing", toggleto + "");
-					ModProperties.getInstance().updateValue("rotate", toggleto + "");
-					Util.updateValuesToConfig();
-					SongPlayer.addChatMessage("§6set swing and rotate to " + toggleto);
-					return true;
-				}
-				/*
-				case "usecommandstoplay": {
-					Boolean oldvalue = Boolean.parseBoolean(ModProperties.getInstance().getConfig().getProperty("useCommandsForPlaying"));
-					ModProperties.getInstance().updateValue("useCommandsForPlaying", toggleto + "");
-					Util.updateValuesToConfig();
-					SongPlayer.addChatMessage("§6set useCommandsToPlay to " + toggleto);
-					if (oldvalue == toggleto) { //prevent my crappy spaghetti code from breaking
-						return true;
-					}
-					if (!toggleto) { //updating to false
-						Util.enableFlightIfNeeded();
-						if (SongHandler.getInstance().stage != null) {
-							Util.updateStageLocationToPlayer();
-							if (SongPlayer.showFakePlayer) { //check if fakeplayer is enabled. if it is, spawn the fakeplayer to the stage
-								if (SongPlayer.fakePlayer == null) {
-									SongPlayer.fakePlayer = new FakePlayerEntity();
-								}
-								SongPlayer.fakePlayer.copyStagePosAndPlayerLook();
-							}
-						}
-					} else { //updating to true
-						Util.disableFlightIfNeeded();
-						if (SongPlayer.showFakePlayer && SongPlayer.fakePlayer != null) { //fake player is showing
-							SongPlayer.removeFakePlayer();
-						}
-						if (SongHandler.getInstance().stage != null) {
-							SongHandler.getInstance().stage.movePlayerToStagePosition(true, false, false);
-						}
-						if (SongHandler.getInstance().currentSong != null) {
-							Util.enableFlightIfNeeded();
-						}
-					}
-					return true;
-				}
-				 */
 				default: {
 					return false;
 				}
@@ -854,24 +821,24 @@ public class CommandProcessor {
 	}
 
 	private static class helpCommand extends Command {
-    	public String getName() {
-    		return "help";
-    	}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "help [command]";
-    	}
-    	public String getDescription() {
-    		return "Lists commands or explains command";
-    	}
-    	public boolean processCommand(String args) {
-    		if (args.length() == 0) {
-    			StringBuilder helpMessage = new StringBuilder("§6Commands -");
-    			for (Command c : commands) {
-    				helpMessage.append(" " + SongPlayer.prefix + c.getName());
-    			}
-    			SongPlayer.addChatMessage(helpMessage.toString());
-    		}
-    		else {
+		public String getName() {
+			return "help";
+		}
+		public String getSyntax() {
+			return "help [command]";
+		}
+		public String getDescription() {
+			return "Lists commands or explains command";
+		}
+		public boolean processCommand(String args) {
+			if (args.length() == 0) {
+				StringBuilder helpMessage = new StringBuilder("§6Commands -");
+				for (Command c : commands) {
+					helpMessage.append(" " + SongPlayer.prefix + c.getName());
+				}
+				SongPlayer.addChatMessage(helpMessage.toString());
+			}
+			else {
 				if (args.contains(" ")) {
 					return false;
 				}
@@ -888,9 +855,9 @@ public class CommandProcessor {
 					SongPlayer.addChatMessage("§6Aliases: §3" + String.join(", ", c.getAliases()));
 				}
 				SongPlayer.addChatMessage("§6------------------------------");
-    		}
+			}
 			return true;
-    	}
+		}
 		public CompletableFuture<Suggestions> getSuggestions(String args, SuggestionsBuilder suggestionsBuilder) {
 			String[] theArgs = args.split(" ");
 			int argumentint = theArgs.length;
@@ -906,26 +873,26 @@ public class CommandProcessor {
 	}
 
 	private static class playCommand extends Command {
-    	public String getName() {
-    		return "play";
-    	}
-    	public String getSyntax() {
-    		return  SongPlayer.prefix + "play <song or url>";
-    	}
-    	public String getDescription() {
-    		return "Plays a song";
-    	}
-    	public boolean processCommand(String args) {
+		public String getName() {
+			return "play";
+		}
+		public String getSyntax() {
+			return  "play <song or url>";
+		}
+		public String getDescription() {
+			return "Plays a song";
+		}
+		public boolean processCommand(String args) {
 			if (!Util.playlistSongs.isEmpty() || !Util.currentPlaylist.isEmpty()) {
-				SongPlayer.addChatMessage("§cYou cannot use this command when a playlist is running! If you want to run an individual song, please type \"" + SongPlayer.prefix + "stop\" and try again.");
+				SongPlayer.addChatMessage("§cYou cannot use this command when a playlist is running! If you want to run an individual song, please type §4" + SongPlayer.prefix + "stop§c and try again.");
 				return true;
 			}
-    		if (args.length() > 0) {
+			if (args.length() > 0) {
 				SongHandler.getInstance().loadSong(args, SongPlayer.SONG_DIR);
-    			return true;
-    		}
+				return true;
+			}
 			return false;
-    	}
+		}
 		public CompletableFuture<Suggestions> getSuggestions(String args, SuggestionsBuilder suggestionsBuilder) {
 			String[] theArgs = args.split(" ");
 			for (String a : theArgs) {
@@ -946,19 +913,19 @@ public class CommandProcessor {
 				return null;
 			}
 		}
-    }
+	}
 
 	private static class stopCommand extends Command {
-    	public String getName() {
-    		return "stop";
-    	}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "stop";
-    	}
-    	public String getDescription() {
-    		return "Stops playing";
-    	}
-    	public boolean processCommand(String args) {
+		public String getName() {
+			return "stop";
+		}
+		public String getSyntax() {
+			return "stop";
+		}
+		public String getDescription() {
+			return "Stops playing";
+		}
+		public boolean processCommand(String args) {
 			if (args.length() != 0) {
 				return false;
 			}
@@ -974,7 +941,7 @@ public class CommandProcessor {
 				SongPlayer.addChatMessage("§6Stopped playlist §3" + Util.currentPlaylist);
 				Util.currentPlaylist = "";
 			}
-			if (SongHandler.getInstance().stage != null) {
+			if (SongHandler.getInstance().stage != null && SongPlayer.switchGamemode) {
 				SongHandler.getInstance().stage.movePlayerToStagePosition();
 			}
 
@@ -989,18 +956,44 @@ public class CommandProcessor {
 			}
 
 			return true;
-    	}
-    }
+		}
+	}
 
 	private static class skipCommand extends Command {
 		public String getName() {
 			return "skip";
 		}
 		public String getSyntax() {
-			return SongPlayer.prefix + "skip";
+			return "skip";
 		}
 		public String getDescription() {
 			return "Skips current song";
+		}
+		public boolean processCommand(String args) {
+			if (args.length() > 0) {
+				return false;
+			}
+			if (SongHandler.getInstance().currentSong == null) {
+				SongPlayer.addChatMessage("§6No song is currently playing");
+				return true;
+			}
+			Util.playcooldown = Calendar.getInstance().getTime().getTime() + 1500;
+			SongHandler.getInstance().currentSong = null;
+			Util.disableFlightIfNeeded();
+			Util.advancePlaylist();
+			return true;
+		}
+	}
+
+	private static class gotoCommand extends Command {
+		public String getName() {
+			return "goto";
+		}
+		public String getSyntax() {
+			return "goto <mm:ss>";
+		}
+		public String getDescription() {
+			return "Goes to a specific time in the song";
 		}
 		public boolean processCommand(String args) {
 			if (SongHandler.getInstance().currentSong == null) {
@@ -1008,65 +1001,37 @@ public class CommandProcessor {
 				return true;
 			}
 			if (args.length() == 0) {
-				Util.playcooldown = Calendar.getInstance().getTime().getTime() + 1500;
-				SongHandler.getInstance().currentSong = null;
-				Util.disableFlightIfNeeded();
-				Util.advancePlaylist();
-				return true;
+				return false;
 			}
-			return false;
+
+			try {
+				long time = Util.parseTime(args);
+				SongHandler.getInstance().currentSong.setTime(time);
+				SongPlayer.addChatMessage("§6Set song time to §3" + Util.formatTime(time));
+				return true;
+			} catch (IOException e) {
+				SongPlayer.addChatMessage("§cNot a valid time stamp");
+				return false;
+			}
 		}
 	}
 
-	private static class gotoCommand extends Command {
-    	public String getName() {
-    		return "goto";
-    	}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "goto <mm:ss>";
-    	}
-    	public String getDescription() {
-    		return "Goes to a specific time in the song";
-    	}
-    	public boolean processCommand(String args) {
+	private static class loopCommand extends Command {
+		public String getName() {
+			return "loop";
+		}
+		public String getSyntax() {
+			return "loop";
+		}
+		public String getDescription() {
+			return "Toggles song looping";
+		}
+		public boolean processCommand(String args) {
 			if (SongHandler.getInstance().currentSong == null) {
 				SongPlayer.addChatMessage("§6No song is currently playing");
 				return true;
 			}
-
-    		if (args.length() > 0) {
-				try {
-					long time = Util.parseTime(args);
-					SongHandler.getInstance().currentSong.setTime(time);
-					SongPlayer.addChatMessage("§6Set song time to §3" + Util.formatTime(time));
-					return true;
-				} catch (IOException e) {
-					SongPlayer.addChatMessage("§cNot a valid time stamp");
-					return false;
-				}
-    		}
-    		else {
-    			return false;
-    		}
-    	}
-    }
-
-	private static class loopCommand extends Command {
-    	public String getName() {
-    		return "loop";
-    	}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "loop";
-    	}
-    	public String getDescription() {
-    		return "Toggles song looping";
-    	}
-    	public boolean processCommand(String args) {
-    		if (SongHandler.getInstance().currentSong == null) {
-				SongPlayer.addChatMessage("§6No song is currently playing");
-				return true;
-			}
-    		boolean toggledto;
+			boolean toggledto;
 			if (Util.currentPlaylist.isEmpty()) { //toggle looping induvidual song
 				SongHandler.getInstance().currentSong.looping = !SongHandler.getInstance().currentSong.looping;
 				SongHandler.getInstance().currentSong.loopCount = 0;
@@ -1081,24 +1046,24 @@ public class CommandProcessor {
 				SongPlayer.addChatMessage("§6Disabled looping");
 			}
 			return true;
-    	}
-    }
+		}
+	}
 
 	private static class statusCommand extends Command {
-    	public String getName() {
-    		return "status";
-    	}
+		public String getName() {
+			return "status";
+		}
 		public String[] getAliases() {
 			return new String[]{"current"};
 		}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "status";
-    	}
-    	public String getDescription() {
-    		return "Gets the status of the song or playlist that is currently playing";
-    	}
-    	public boolean processCommand(String args) {
-    		if (args.length() != 0) {
+		public String getSyntax() {
+			return "status";
+		}
+		public String getDescription() {
+			return "Gets the status of the song or playlist that is currently playing";
+		}
+		public boolean processCommand(String args) {
+			if (args.length() != 0) {
 				return false;
 			}
 			if (SongHandler.getInstance().currentSong == null) {
@@ -1115,7 +1080,7 @@ public class CommandProcessor {
 			}
 			return true;
 		}
-    }
+	}
 
 	private static class queueCommand extends Command {
 		public String getName() {
@@ -1125,7 +1090,7 @@ public class CommandProcessor {
 			return new String[]{"showQueue"};
 		}
 		public String getSyntax() {
-			return SongPlayer.prefix + "queue";
+			return "queue";
 		}
 		public String getDescription() {
 			return "Shows the current song queue";
@@ -1168,98 +1133,117 @@ public class CommandProcessor {
 	}
 
 	private static class songsCommand extends Command {
-    	public String getName() {
-    		return "songs";
-    	}
-		public String[] getAliases() {
-			return new String[]{"list"};
+		public String getName() {
+			return "songs";
 		}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "songs";
-    	}
-    	public String getDescription() {
-    		return "Lists available songs";
-    	}
-    	public boolean processCommand(String args) {
-    		if (args.length() == 0) {
-				StringBuilder sb = new StringBuilder("§6");
-				boolean firstItem = true;
-    			for (File songFile : SongPlayer.SONG_DIR.listFiles()) {
-        			String fileName = songFile.getName();
-        			if (firstItem) {
-        				firstItem = false;
-        			}
-        			else {
-        				sb.append(", ");
-        			}
-    				sb.append(fileName);
-        		}
-    			SongPlayer.addChatMessage(sb.toString());
-    			return true;
-    		}
-    		else {
-    			return false;
-    		}
-    	}
-    }
-
-	private static class setCreativeCommandCommand extends Command {
-    	public String getName() {
-    		return "setCreativeCommand";
-    	}
 		public String[] getAliases() {
-			return new String[]{"sc"};
+			return new String[]{"list", "listSongs"};
 		}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "setCreativeCommand <command>";
-    	}
-    	public String getDescription() {
-    		return "Sets the command used to go into creative mode";
-    	}
-    	public boolean processCommand(String args) {
-    		if (args.length() > 0) {
-				if (args.startsWith("/")) {
-					args = args.substring(1);
-				}
-				ModProperties.getInstance().updateValue("creativeCommand", args);
-				Util.updateValuesToConfig();
-    			SongPlayer.addChatMessage("§6Set creative command to §3/" + args);
-				return true;
-    		}
-    		else {
-    			return false;
-    		}
-    	}
-    }
-
-	private static class setSurvivalCommandCommand extends Command {
-    	public String getName() {
-    		return "setSurvivalCommand";
-    	}
-		public String[] getAliases() {
-			return new String[]{"ss"};
+		public String getSyntax() {
+			return "songs";
 		}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "setSurvivalCommand <command>";
-    	}
-    	public String getDescription() {
-    		return "Sets the command used to go into survival mode";
-    	}
-    	public boolean processCommand(String args) {
+		public String getDescription() {
+			return "Lists available songs";
+		}
+		public boolean processCommand(String args) {
 			if (args.length() > 0) {
-				if (args.startsWith("/")) {
-					args = args.substring(1);
-				}
-				ModProperties.getInstance().updateValue("survivalCommand", args);
-				Util.updateValuesToConfig();
-				SongPlayer.addChatMessage("§6Set survival command to §3/" + args);
-				return true;
-			}
-			else {
 				return false;
 			}
-    	}
-    }
+			StringBuilder sb = new StringBuilder("§6");
+			boolean firstItem = true;
+			for (File songFile : SongPlayer.SONG_DIR.listFiles()) {
+				String fileName = songFile.getName();
+				if (firstItem) {
+					firstItem = false;
+				} else {
+					sb.append("§7, ");
+				}
+				sb.append(fileName);
+			}
+			SongPlayer.addChatMessage(sb.toString());
+			return true;
+		}
+	}
+
+	private static class setCreativeCommandCommand extends Command {
+		public String getName() {
+			return "setCreativeCommand";
+		}
+		public String[] getAliases() {
+			return new String[]{"sc", "creativeCommand"};
+		}
+		public String getSyntax() {
+			return "setCreativeCommand <command>";
+		}
+		public String getDescription() {
+			return "Sets the command used to go into creative mode";
+		}
+		public boolean processCommand(String args) {
+			if (args.length() == 0) {
+				return false;
+			}
+			if (args.startsWith("/")) {
+				args = args.substring(1);
+			}
+			String oldCommand = SongPlayer.creativeCommand;
+			if (oldCommand.equals(args)) {
+				if (args.isEmpty()) {
+					SongPlayer.addChatMessage("§6Nothing changed; command is already disabled");
+				} else {
+					SongPlayer.addChatMessage("§6Nothing changed; command is already set to §3/" + oldCommand);
+				}
+				return true;
+			}
+			if (args.isEmpty()) {
+				SongPlayer.addChatMessage("§6Disabled §9creative§6 command from running");
+			} else {
+				SongPlayer.addChatMessage("§6The command §9creative§6 has been updated\nfrom: §3/" + oldCommand + "\n§6to: §3/" + args);
+			}
+			ModProperties.getInstance().updateValue("creativeCommand", args);
+			Util.updateValuesToConfig();
+			return true;
+		}
+	}
+
+	private static class setSurvivalCommandCommand extends Command {
+		public String getName() {
+			return "setSurvivalCommand";
+		}
+		public String[] getAliases() {
+			return new String[]{"ss", "survivalCommand"};
+		}
+		public String getSyntax() {
+			return "setSurvivalCommand <command>";
+		}
+		public String getDescription() {
+			return "Sets the command used to go into survival mode";
+		}
+		public boolean processCommand(String args) {
+			if (args.length() == 0) {
+				return false;
+			}
+			if (args.startsWith("/")) {
+				args = args.substring(1);
+			}
+			String oldCommand = SongPlayer.survivalCommand;
+			if (oldCommand.equals(args)) {
+				if (args.isEmpty()) {
+					SongPlayer.addChatMessage("§6Nothing changed; command is already disabled");
+				} else {
+					SongPlayer.addChatMessage("§6Nothing changed; command is already set to §3/" + oldCommand);
+				}
+				return true;
+			}
+			if (args.isEmpty()) {
+				SongPlayer.addChatMessage("§6Disabled §9survival§6 command from running");
+			} else {
+				SongPlayer.addChatMessage("§6The command §9survival§6 has been updated\nfrom: §3/" + oldCommand + "\n§6to: §3/" + args);
+			}
+			ModProperties.getInstance().updateValue("survivalCommand", args);
+			Util.updateValuesToConfig();
+			return true;
+		}
+	}
 
 	private static class useEssentialsCommandsCommand extends Command {
 		public String getName() {
@@ -1269,7 +1253,7 @@ public class CommandProcessor {
 			return new String[]{"essentials", "useEssentials", "essentialsCommands"};
 		}
 		public String getSyntax() {
-			return SongPlayer.prefix + "useEssentialsCommands";
+			return "useEssentialsCommands";
 		}
 		public String getDescription() {
 			return "Switches to using essentials gamemode commands";
@@ -1296,7 +1280,7 @@ public class CommandProcessor {
 			return new String[]{"vanilla", "useVanilla", "vanillaCommands"};
 		}
 		public String getSyntax() {
-			return SongPlayer.prefix + "useVanillaCommands";
+			return "useVanillaCommands";
 		}
 		public String getDescription() {
 			return "Switches to using vanilla gamemode commands";
@@ -1317,19 +1301,19 @@ public class CommandProcessor {
 
 	private static class toggleFakePlayerCommand extends Command {
 		public String getName() {
-    		return "toggleFakePlayer";
-    	}
+			return "toggleFakePlayer";
+		}
 		public String[] getAliases() {
 			return new String[]{"fakePlayer", "fp"};
 		}
-    	public String getSyntax() {
-    		return SongPlayer.prefix + "toggleFakePlayer";
-    	}
-    	public String getDescription() {
-    		return "Shows a fake player representing your true position when playing songs";
-    	}
-    	public boolean processCommand(String args) {
-    		if (args.length() != 0) {
+		public String getSyntax() {
+			return "toggleFakePlayer";
+		}
+		public String getDescription() {
+			return "Shows a fake player representing your true position when playing songs";
+		}
+		public boolean processCommand(String args) {
+			if (args.length() != 0) {
 				return false;
 			}
 			SongPlayer.showFakePlayer = !SongPlayer.showFakePlayer;
@@ -1346,7 +1330,7 @@ public class CommandProcessor {
 			}
 			return true;
 
-    	}
+		}
 	}
 
 	private static class testSongCommand extends Command {
@@ -1354,7 +1338,7 @@ public class CommandProcessor {
 			return "testSong";
 		}
 		public String getSyntax() {
-			return SongPlayer.prefix + "testSong";
+			return "testSong";
 		}
 		public String getDescription() {
 			return "Creates a song for testing";
@@ -1364,7 +1348,7 @@ public class CommandProcessor {
 				return false;
 			}
 			if (!Util.playlistSongs.isEmpty() || !Util.currentPlaylist.isEmpty()) {
-				SongPlayer.addChatMessage("§cYou cannot use this command when a playlist is running! If you want to run an individual song, please type \"" + SongPlayer.prefix + "stop\" and try again.");
+				SongPlayer.addChatMessage("§cYou cannot use this command when a playlist is running! If you want to run an individual song, please type §4" + SongPlayer.prefix + "stop§c and try again.");
 				return true;
 			}
 			Song song = new Song("test_song");

@@ -27,8 +27,6 @@ public abstract class ClientPlayNetworkHandlerMixin {
 	@Shadow
 	private final ClientConnection connection;
 
-	@Shadow @Nullable public abstract ServerInfo getServerInfo();
-
 	public ClientPlayNetworkHandlerMixin() {
 		connection = null;
 	}
@@ -47,6 +45,8 @@ public abstract class ClientPlayNetworkHandlerMixin {
 			} else {
 				if (((PlayerMoveC2SPacket) packet).changesLook()) {
 					connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch(), true));
+				} else {
+					connection.send(new PlayerMoveC2SPacket.PositionAndOnGround(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ(), true));
 				}
 			}
 			if (SongPlayer.fakePlayer != null) {
