@@ -148,6 +148,11 @@ SongPlayer will read the song file and play it on your game. No one else can hea
 This is nice if you want to test out song files before playing them for everyone else, or if you just want to enjoy your songs without any interruptions of other players.
 
 # --- CHANGELOGS ---
+### 3.1.3
+```
+- Fixed an issue where you didn't teleport properly and could move around
+```
+
 ### 3.1.2
 ```
 - Fixed an issue where you wouldn't teleport to the center of the stage server-side when you start a song, causing some noteblocks to not be placed
