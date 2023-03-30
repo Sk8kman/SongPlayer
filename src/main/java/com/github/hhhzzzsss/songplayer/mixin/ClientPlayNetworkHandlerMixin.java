@@ -46,7 +46,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
 				if (((PlayerMoveC2SPacket) packet).changesLook()) {
 					connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch(), true));
 				} else {
-					connection.send(new PlayerMoveC2SPacket.PositionAndOnGround(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ(), true));
+					connection.send(new PlayerMoveC2SPacket.PositionAndOnGround(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, true));
 				}
 			}
 			if (SongPlayer.fakePlayer != null) {
