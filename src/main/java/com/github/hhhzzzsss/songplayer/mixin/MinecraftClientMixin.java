@@ -1,5 +1,6 @@
 package com.github.hhhzzzsss.songplayer.mixin;
 
+import com.github.hhhzzzsss.songplayer.Util;
 import com.github.hhhzzzsss.songplayer.playing.SongHandler;
 import com.github.hhhzzzsss.songplayer.playing.ProgressDisplay;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +17,11 @@ public class MinecraftClientMixin {
 	@Inject(at = @At("HEAD"), method = "render(Z)V")
 	public void onRender(boolean tick, CallbackInfo ci) {
 		if (SongPlayer.MC.world != null && SongPlayer.MC.player != null && SongPlayer.MC.interactionManager != null) {
-			SongHandler.getInstance().onRenderIngame(tick);
+			SongHandler.getInstance().onUpdate(false);
+			//updates inventory and status of fakeplayer
+			if (SongPlayer.fakePlayer != null) {
+				SongPlayer.fakePlayer.updateFakePlayer();
+			}
 		} else {
 			SongHandler.getInstance().onNotIngame();
 		}
@@ -24,6 +29,10 @@ public class MinecraftClientMixin {
 
 	@Inject(at = @At("HEAD"), method = "tick()V")
 	public void onTick(CallbackInfo ci) {
+		if (SongPlayer.MC.world != null && SongPlayer.MC.player != null && SongPlayer.MC.interactionManager != null) {
+			SongHandler.getInstance().onUpdate(true);
+			Util.lastSwingPacket++;
+		}
 		ProgressDisplay.getInstance().onTick();
 	}
 }

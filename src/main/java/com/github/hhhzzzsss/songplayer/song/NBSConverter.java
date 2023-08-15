@@ -30,8 +30,8 @@ public class NBSConverter {
         public short layer;
         public byte instrument;
         public byte key;
-        public byte velocity = 100;
-        public byte panning = 100;
+        public byte velocity = 127;
+        public byte panning = 127;
         public short pitch = 0;
     }
 
@@ -39,7 +39,7 @@ public class NBSConverter {
         public String name;
         public byte lock = 0;
         public byte volume;
-        public byte stereo = 100;
+        public byte stereo = 127;
     }
 
     public static Song getSongFromBytes(byte[] bytes, String fileName) throws IOException {
@@ -136,25 +136,22 @@ public class NBSConverter {
         }
         for (NBSNote note : nbsNotes) {
             Instrument instrument;
-            if (note.instrument < instrumentIndex.length) {
-                instrument = instrumentIndex[note.instrument];
-            }
-            else {
+            if (note.instrument >= instrumentIndex.length) {
                 continue;
             }
-
             if (note.key < 33 || note.key > 57) {
                 continue;
             }
 
-            byte layerVolume = 100;
+            instrument = instrumentIndex[note.instrument];
+
+            byte layerVolume = 127; //is this variable assigned to the volume of the note? I didn't think nbs files had such a feature.
             if (nbsLayers.size() > note.layer) {
                 layerVolume = nbsLayers.get(note.layer).volume;
             }
-
             int pitch = note.key-33;
             int noteId = pitch + instrument.instrumentId*25;
-            song.add(new Note(noteId, getMilliTime(note.tick, tempo)));
+            song.add(new Note(noteId, getMilliTime(note.tick, tempo), layerVolume));
         }
 
         song.length = song.get(song.size()-1).time + 50;

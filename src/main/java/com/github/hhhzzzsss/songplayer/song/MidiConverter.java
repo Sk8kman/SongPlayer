@@ -33,7 +33,6 @@ public class MidiConverter {
     
 	public static Song getSong(Sequence sequence, String name) {
 		Song song  = new Song(name);
-		
 		long tpq = sequence.getResolution();
 		
 		ArrayList<MidiEvent> tempoEvents = new ArrayList<>();
@@ -51,10 +50,12 @@ public class MidiConverter {
 		}
 		
 		Collections.sort(tempoEvents, (a, b) -> Long.compare(a.getTick(), b.getTick()));
-		
-		for (Track track : sequence.getTracks()) {
 
+		long offset = -1;
+
+		for (Track track : sequence.getTracks()) {
 			long microTime = 0;
+
 			int[] instrumentIds = new int[16];
 			int mpq = 500000;
 			int tempoEventIdx = 0;
@@ -63,7 +64,8 @@ public class MidiConverter {
 			for (int i = 0; i < track.size(); i++) {
 				MidiEvent event = track.get(i);
 				MidiMessage message = event.getMessage();
-				
+
+
 				while (tempoEventIdx < tempoEvents.size() && event.getTick() > tempoEvents.get(tempoEventIdx).getTick()) {
 					long deltaTick = tempoEvents.get(tempoEventIdx).getTick() - prevTick;
 					prevTick = tempoEvents.get(tempoEventIdx).getTick();
@@ -78,32 +80,43 @@ public class MidiConverter {
 				
 				if (message instanceof ShortMessage) {
 					ShortMessage sm = (ShortMessage) message;
+
 					if (sm.getCommand() == SET_INSTRUMENT) {
 						instrumentIds[sm.getChannel()] = sm.getData1();
 					}
 					else if (sm.getCommand() == NOTE_ON) {
 						if (sm.getData2() == 0) continue;
+						byte volume = (byte) sm.getData2();
 						int pitch = sm.getData1();
 						long deltaTick = event.getTick() - prevTick;
 						prevTick = event.getTick();
 						microTime += (mpq/tpq) * deltaTick;
-
 						Note note;
 						if (sm.getChannel() == 9) {
-							note = getMidiPercussionNote(pitch, microTime);
+							note = getMidiPercussionNote(pitch, microTime, volume);
 						}
 						else {
-							note = getMidiInstrumentNote(instrumentIds[sm.getChannel()], pitch, microTime);
+							note = getMidiInstrumentNote(instrumentIds[sm.getChannel()], pitch, microTime, volume);
 						}
 						if (note != null) {
 							song.add(note);
 						}
 
+
+						//get the time when the last note is, and make it the song length
 						long time = microTime / 1000L;
 						if (time > song.length) {
 							song.length = time;
 						}
+
+						//get the time when the first note is
+						if (time < offset || offset == -1) {
+							offset = time;
+						}
 					}
+					/*
+					//why do we need to wait after the song is over?
+					//is there a point to this?
 					else if (sm.getCommand() == NOTE_OFF) {
 						long deltaTick = event.getTick() - prevTick;
 						prevTick = event.getTick();
@@ -113,16 +126,22 @@ public class MidiConverter {
 							song.length = time;
 						}
 					}
+					 */
 				}
 			}
 		}
-
 		song.sort();
-		
+
+		//this code here just lets us start the song at the very first note, because some midis are sometimes silent at the start
+		for (Note n : song.notes) {
+			n.time -= offset;
+		}
+		song.length -= offset;
+
 		return song;
 	}
 
-	public static Note getMidiInstrumentNote(int midiInstrument, int midiPitch, long microTime) {
+	public static Note getMidiInstrumentNote(int midiInstrument, int midiPitch, long microTime, byte volume) {
 		Instrument instrument = null;
 		Instrument[] instrumentList = instrumentMap.get(midiInstrument);
 		if (instrumentList != null) {
@@ -142,15 +161,15 @@ public class MidiConverter {
 		int noteId = pitch + instrument.instrumentId*25;
 		long time = microTime / 1000L;
 
-		return new Note(noteId, time);
+		return new Note(noteId, time, volume);
 	}
 
-	private static Note getMidiPercussionNote(int midiPitch, long microTime) {
+	private static Note getMidiPercussionNote(int midiPitch, long microTime, byte volume) {
 		if (percussionMap.containsKey(midiPitch)) {
 			int noteId = percussionMap.get(midiPitch);
 			long time = microTime / 1000L;
 
-			return new Note(noteId, time);
+			return new Note(noteId, time, volume);
 		}
 		return null;
 	}

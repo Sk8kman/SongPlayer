@@ -3,10 +3,11 @@ package com.github.hhhzzzsss.songplayer.song;
 public class Note implements Comparable<Note> {
 	public int noteId;
 	public long time;
-	public short pitch;
-	public Note(int note, long time) {
+	public byte volume;
+	public Note(int note, long time, byte volume) {
 		this.noteId = note;
 		this.time = time;
+		this.volume = volume;
 	}
 
 	@Override

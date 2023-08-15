@@ -77,10 +77,8 @@ public class Song {
 			if (position < notes.size()) {
 				return notes.get(position).time <= time;
 			}
-			return false;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	public Note getNextNote() {

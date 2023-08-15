@@ -2,6 +2,7 @@ package com.github.hhhzzzsss.songplayer.playing;
 
 import com.github.hhhzzzsss.songplayer.SongPlayer;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -18,28 +19,33 @@ public class ProgressDisplay {
     }
     private ProgressDisplay() {}
 
-    public MutableText displayText = Text.empty();
+    public MutableText topText = Text.empty();
+    public MutableText bottomText = Text.empty();
     public int fade = 0;
 
-    public void setText(MutableText text) {
-        displayText = text;
+    public void setText(MutableText bottomText, MutableText topText) {
+        this.bottomText = bottomText;
+        this.topText = topText;
         fade = 100;
     }
 
-    public void onRenderHUD(MatrixStack matrixStack, int scaledWidth, int scaledHeight, int heldItemTooltipFade) {
+    public void onRenderHUD(DrawContext context, int scaledWidth, int scaledHeight, int heldItemTooltipFade) {
         if (fade <= 0) {
             return;
         }
 
-        int textWidth = SongPlayer.MC.textRenderer.getWidth(displayText);
-        int textX = (scaledWidth - textWidth) / 2;
-        int textY = scaledHeight - 59;
+        int bottomTextWidth = SongPlayer.MC.textRenderer.getWidth(bottomText);
+        int topTextWidth = SongPlayer.MC.textRenderer.getWidth(topText);
+        int bottomTextX = (scaledWidth - bottomTextWidth) / 2;
+        int topTextX = (scaledWidth - topTextWidth) / 2;
+        int bottomTextY = scaledHeight - 59;
         if (!SongPlayer.MC.interactionManager.hasStatusBars()) {
-            textY += 14;
+            bottomTextY += 14;
         }
         if (heldItemTooltipFade > 0) {
-            textY -= 12;
+            bottomTextY -= 12;
         }
+        int topTextY = bottomTextY - 12;
 
         int opacity = (int)((float)this.fade * 256.0F / 10.0F);
         if (opacity > 255) {
@@ -49,7 +55,8 @@ public class ProgressDisplay {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         Objects.requireNonNull(SongPlayer.MC.textRenderer);
-        SongPlayer.MC.textRenderer.drawWithShadow(matrixStack, displayText, (float)textX, (float)textY, 16777215 + (opacity << 24));
+        context.drawTextWithShadow(SongPlayer.MC.textRenderer, bottomText, bottomTextX, bottomTextY, 16777215 + (opacity << 24));
+        context.drawTextWithShadow(SongPlayer.MC.textRenderer, topText, topTextX, topTextY, 16777215 + (opacity << 24));
         RenderSystem.disableBlend();
     }
 
