@@ -44,13 +44,14 @@ Resumes playing a song from when it was last paused
 ### OR: $playlist \<edit> \<playlist name> \<add, remove> \<song>
 Manage or play a list of songs
 
-### $setPlayMode \<client, commands, gamemode>
+### $setPlayMode \<client, commands, gamemode, survival>
 *$aliases: `$playMode`, `$pMode`, `$updatePlayMode`*
 
 Change what method to use when playing songs.
 - client: plays your songs client-side, so no one else can hear them.
 - gamemode: switches to creative to automatically build & repair noteblocks, then back to survival to play them.
 - commands: Use commands to play songs instead of noteblocks
+- survival: Searches for noteblocks around you and tunes them to play songs
 
 ### $setStage <default, legacy, compact>
 *$aliases: `$stage`, `$updateStage`*
@@ -69,7 +70,7 @@ Example: `$prefix !` will change commands to `!example command` instead of `$exa
 
 Change the delay of building / tuning noteblocks
 
-### $noteLoudnessThreshold <0.0 - 1.0>
+### $noteLoudnessThreshold <0-127>
 Skip notes if the volume is below the threshold. This can be used for playing black midi or to try to keep below the packet limit.
 *Note: Won't have any effect if useVolume is toggled off*
 
