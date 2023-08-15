@@ -70,9 +70,9 @@ Example: `$prefix !` will change commands to `!example command` instead of `$exa
 
 Change the delay of building / tuning noteblocks
 
-### $noteLoudnessThreshold <0-127>
+### $minimumVolume <0-127>
 Skip notes if the volume is below the threshold. This can be used for playing black midi or to try to keep below the packet limit.
-*Note: Won't have any effect if useVolume is toggled off*
+*Note: Won't have any effect if $toggle volume is toggled off*
 
 ### $toggle <allMovements, rotate, swing, useExactInstrumentsOnly, usePacketsOnly, volume> <true, false>
 Toggles certain features I added as ideas when forking this. All are toggled to false by default.
@@ -81,7 +81,7 @@ Toggles certain features I added as ideas when forking this. All are toggled to 
 - Swing: weather you swing your hand when you play a noteblock
 - useExactInstrumentsOnly: If playing in survival-only mode, toggle weather or not SongPlayer should look for alternative instruments if it can't find the exact one it needs (This will make songs sould a little different, but it's easier to build stages for all your songs)
 - useVolume: weather playing songs should take into account volume when playing
-- usePacketsOnly: weather to only send packets when playing noteblocks rather than using vanilla's interaction manager (If set to true, this can cause some issues when SongPlayer builds your stage)
+- usePacketsOnly: weather to only send packets when playing noteblocks rather than using vanilla's interaction manager (If set to true, this can cause some issues when SongPlayer builds your stage, however it looks nicer when you're playing)
 
 ### $stop
 Stops playing/building and clears any queue or playlist.
@@ -159,6 +159,9 @@ SongPlayer places noteblocks with nbt and instrument data already in them, so th
 My client will automatically detect what noteblocks are needed and place them automatically before each song is played, which makes playing songs quite easy. The only drawback is that you need to be able to switch between creative and survival mode, which my client will attempt to do automatically.
 
 When playing a song, freecam is enabled. You will be able to move around freely, but in reality you are only moving your camera while your player stays at the center of the noteblocks. This is because noteblocks can only be played if you're within reach distance of them, so you have to stand at the center of the noteblocks to play them, but it's still nice to be able to move around while your song is playing.
+
+--- using gamemode ---
+SongPlayer will switch to creative mode to build / repair the stage, then back to survival mode to play the noteblocks.
 
 --- using survival ---
 SongPlayer scans the area around you for reachable noteblocks. It will tune the noteblocks to their needed pitch automatically and start playing. If SongPlayer cannot find the correct instrument it needs for a song, it will try to find a reasonable substitute for that note and use that instead if you have useExactInstrumentsOnly set to false.
