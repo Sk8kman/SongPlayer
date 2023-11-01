@@ -73,7 +73,7 @@ Change the delay of building / tuning noteblocks
 
 ### $minimumVolume <0 - 127>
 Skip notes if the volume is below the threshold. This can be used for playing black midi or to try to keep below the packet limit.
-*Note: Won't have any effect if useVolume is toggled off*
+*Note: Won't have any effect if volume is toggled off*
 
 ### $toggle <allMovements, rotate, swing, useExactInstrumentsOnly, usePacketsOnly, volume> <true, false>
 Toggles certain features I added as ideas when forking this. All are toggled to false by default.
