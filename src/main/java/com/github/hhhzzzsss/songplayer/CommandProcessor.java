@@ -2,13 +2,11 @@ package com.github.hhhzzzsss.songplayer;
 
 import com.github.hhhzzzsss.songplayer.config.ModProperties;
 import com.github.hhhzzzsss.songplayer.playing.SongHandler;
-import com.github.hhhzzzsss.songplayer.playing.Stage;
 import com.github.hhhzzzsss.songplayer.song.Note;
 import com.github.hhhzzzsss.songplayer.song.Song;
 import com.google.common.io.Files;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.Hand;
@@ -604,7 +602,53 @@ public class CommandProcessor {
 			return CommandSource.suggestMatching(possibleArguments, suggestionsBuilder);
 		}
 	}
+/* This doesn't work yet lol
+	private static class RecordCommand extends Command {
 
+		@Override
+		public String getName() {
+			return "record";
+		}
+
+		@Override
+		public String getSyntax() {
+			return "record <start, stop, pause, resume, cancel>";
+		}
+
+		@Override
+		public String getDescription() {
+			return "logs noteblocks other players play that you hear and saves it as a .txt file that you can play back later.";
+		}
+
+		@Override
+		public boolean processCommand(String args) {
+			String[] arguments = args.toLowerCase().split(" ");
+			if (arguments.length != 1) {
+				return false;
+			}
+			switch(arguments[0].toLowerCase()) {
+				case "start": {
+
+				}
+				case "stop": {
+
+				}
+				case "pause": {
+
+				}
+				case "resume": {
+
+				}
+				case "cancel": {
+
+				}
+				default: {
+					return false;
+				}
+			}
+		}
+	}
+*/
 	private static class playmodeCommand extends Command {
 
 		@Override
@@ -628,7 +672,7 @@ public class CommandProcessor {
 					"gamemode - will switch from creative to build noteblocks, and switch to survival to play them.\n " +
 					"survival - will scan for noteblocks in reach distance around the player. If all needed noteblocks are present, SongPlayer will start playing.\n" +
 					"client - plays noteblocks client-side. Can be used to test out new songs you get before playing them for everyone else.\n " +
-					"commands - will use only commands and no noteblocks. This should only be used if you have operator. (you can get kicked for spam)\n ";// +
+					"commands - will use only commands and no noteblocks. This should only be used if you have operator. (you can get kicked for spam)"; // +
 					//"commandblocks - uses command blocks to run commands rather than sending the commands yourself. Can be used to get around servers that ratelimit commands like kaboom and minehut.";
 		}
 
@@ -668,9 +712,10 @@ public class CommandProcessor {
 					Util.updateValuesToConfig();
 					return true;
 				}
+
+				/*
 				case "commandblocks": {
 					//THIS IS BUGGY. You can uncomment this and rebuild it if you want, but just be warned it isn't complete and probably will never be
-					/*
 					if (SongPlayer.useNoteblocksWhilePlaying) {
 						if (SongHandler.getInstance().stage != null) {
 							SongHandler.getInstance().stage.movePlayerToStagePosition(true, false, false);
@@ -697,9 +742,9 @@ public class CommandProcessor {
 					ModProperties.getInstance().updateValue("useNoteblocks", String.valueOf(false));
 					Util.updateValuesToConfig();
 					Util.assignCommandBlocks(true);
-					 */
 					return true;
 				}
+				 */
 				case "survival": {
 					//hhhzzzsss pls add
 					if (SongPlayer.useNoteblocksWhilePlaying && !SongPlayer.switchGamemode) {
@@ -1104,7 +1149,7 @@ public class CommandProcessor {
 		public CompletableFuture<Suggestions> getSuggestions(String args, SuggestionsBuilder suggestionsBuilder) {
 			String[] theArgs = args.split(" ");
 			for (String a : theArgs) {
-				if (a.endsWith(".mid") || a.endsWith(".midi") || a.endsWith(".nbs")) {
+				if (a.endsWith(".mid") || a.endsWith(".midi") || a.endsWith(".nbs") || a.endsWith(".txt")) {
 					return null;
 				}
 			}
@@ -1239,7 +1284,6 @@ public class CommandProcessor {
 			}
 			Util.playcooldown = Calendar.getInstance().getTime().getTime() + 1500;
 			SongHandler.getInstance().currentSong = null;
-			Util.disableFlightIfNeeded();
 			Util.advancePlaylist();
 			return true;
 		}

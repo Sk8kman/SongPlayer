@@ -169,6 +169,10 @@ public class NBSConverter {
         return new String(arr);
     }
 
+    public static void convert(Song song) {
+
+    }
+
     private static int getMilliTime(int tick, int tempo) {
         return 1000 * tick * 100 / tempo;
     }

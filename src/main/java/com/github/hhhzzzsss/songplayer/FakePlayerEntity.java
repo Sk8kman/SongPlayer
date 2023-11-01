@@ -30,7 +30,7 @@ public class FakePlayerEntity extends OtherClientPlayerEntity {
 		capeY = getY();
 		capeZ = getZ();
 
-		world.addEntity(getId(), this);
+		world.addEntity(this);
 		SongPlayer.fakePlayer = this;
 	}
 

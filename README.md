@@ -1,6 +1,6 @@
 # SongPlayer
 A Fabric mod for Minecraft that plays songs with noteblocks.
-The current version is for Minecraft 1.19.x.
+The current version is for Minecraft 1.20.2.
 
 # How to install
 You can grab the mod jar from releases section.
@@ -8,7 +8,8 @@ This mod requires fabric api.
 
 # Adding songs
 You can put midis or NoteBlockStudio files in the `.minecraft/songs` folder.
-SongPlayer supports any valid midi and all versions of NBS files.
+SongPlayer supports any valid midi and all versions of NBS files, as well as properly formatted .txt files.
+.txt formatted as `tick:pitch:instrument` in every line. example: 0:18:5
 
 # Using the client
 To get started, add some midis or nbs files to your songs folder, and use `$play <filename>`.
@@ -51,7 +52,7 @@ Change what method to use when playing songs.
 - client: plays your songs client-side, so no one else can hear them.
 - gamemode: switches to creative to automatically build & repair noteblocks, then back to survival to play them.
 - commands: Use commands to play songs instead of noteblocks
-- survival: Searches for noteblocks around you and tunes them to play songs
+- survival: searches for noteblocks around you and tunes them to play songs
 
 ### $setStage <default, legacy, compact>
 *$aliases: `$stage`, `$updateStage`*
@@ -70,9 +71,9 @@ Example: `$prefix !` will change commands to `!example command` instead of `$exa
 
 Change the delay of building / tuning noteblocks
 
-### $minimumVolume <0-127>
+### $minimumVolume <0 - 127>
 Skip notes if the volume is below the threshold. This can be used for playing black midi or to try to keep below the packet limit.
-*Note: Won't have any effect if $toggle volume is toggled off*
+*Note: Won't have any effect if useVolume is toggled off*
 
 ### $toggle <allMovements, rotate, swing, useExactInstrumentsOnly, usePacketsOnly, volume> <true, false>
 Toggles certain features I added as ideas when forking this. All are toggled to false by default.
@@ -80,8 +81,8 @@ Toggles certain features I added as ideas when forking this. All are toggled to 
 - Rotate: weather you rotate to the noteblock you are placing / playing
 - Swing: weather you swing your hand when you play a noteblock
 - useExactInstrumentsOnly: If playing in survival-only mode, toggle weather or not SongPlayer should look for alternative instruments if it can't find the exact one it needs (This will make songs sould a little different, but it's easier to build stages for all your songs)
-- useVolume: weather playing songs should take into account volume when playing
-- usePacketsOnly: weather to only send packets when playing noteblocks rather than using vanilla's interaction manager (If set to true, this can cause some issues when SongPlayer builds your stage, however it looks nicer when you're playing)
+- usePacketsOnly: weather to only send packets when playing noteblocks rather than using vanilla's interaction manager (If set to true, this can cause some issues when SongPlayer builds your stage)
+- Volume: weather playing songs should take into account volume when playing
 
 ### $stop
 Stops playing/building and clears any queue or playlist.
@@ -160,9 +161,6 @@ My client will automatically detect what noteblocks are needed and place them au
 
 When playing a song, freecam is enabled. You will be able to move around freely, but in reality you are only moving your camera while your player stays at the center of the noteblocks. This is because noteblocks can only be played if you're within reach distance of them, so you have to stand at the center of the noteblocks to play them, but it's still nice to be able to move around while your song is playing.
 
---- using gamemode ---
-SongPlayer will switch to creative mode to build / repair the stage, then back to survival mode to play the noteblocks.
-
 --- using survival ---
 SongPlayer scans the area around you for reachable noteblocks. It will tune the noteblocks to their needed pitch automatically and start playing. If SongPlayer cannot find the correct instrument it needs for a song, it will try to find a reasonable substitute for that note and use that instead if you have useExactInstrumentsOnly set to false.
 
@@ -181,6 +179,12 @@ SongPlayer will read the song file and play it on your game. No one else can hea
 This is nice if you want to test out song files before playing them for everyone else, or if you just want to enjoy your songs without any interruptions of other players.
 
 # --- CHANGELOGS ---
+### 3.2.1
+```
+- 1.20.2 support
+- added .txt song format (tick:pitch:instrumentID)
+```
+
 ### 3.2.0
 ```
 - added new commands:

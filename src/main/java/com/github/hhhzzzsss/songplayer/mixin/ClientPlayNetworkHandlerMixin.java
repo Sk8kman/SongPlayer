@@ -5,11 +5,10 @@ import com.github.hhhzzzsss.songplayer.FakePlayerEntity;
 import com.github.hhhzzzsss.songplayer.Util;
 import com.github.hhhzzzsss.songplayer.playing.SongHandler;
 import com.github.hhhzzzsss.songplayer.playing.Stage;
-import net.minecraft.block.Block;
+import net.minecraft.network.PacketCallbacks;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,18 +20,12 @@ import com.github.hhhzzzsss.songplayer.SongPlayer;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.ClientConnection;
 
-import java.time.Instant;
-
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin {
-	@Shadow
-	private final ClientConnection connection;
-	public ClientPlayNetworkHandlerMixin() {
-		connection = null;
-	}
+	/*
 
 	@Inject(at = @At("HEAD"), method = "sendPacket(Lnet/minecraft/network/packet/Packet;)V", cancellable = true)
-	private void onSendPacket(Packet<?> packet, CallbackInfo ci) {
+	private void onSendPacket(Packet<?> packet, PacketCallbacks pc, CallbackInfo ci) {
 		Stage stage = SongHandler.getInstance().stage;
 		if (stage == null || !SongPlayer.useNoteblocksWhilePlaying || SongHandler.getInstance().paused) {
 			return;
@@ -78,17 +71,11 @@ public abstract class ClientPlayNetworkHandlerMixin {
 			if (mode.equals(ClientCommandC2SPacket.Mode.START_SPRINTING) || mode.equals(ClientCommandC2SPacket.Mode.STOP_SPRINTING)) {
 				ci.cancel();
 			}
+		}/* else if (packet instanceof TeleportConfirmC2SPacket) {
+			SongPlayer.addChatMessage("tp c2s packet sent");
 		}
 	}
-
-	@Inject(at = @At("TAIL"), method = "sendPacket(Lnet/minecraft/network/packet/Packet;)V", cancellable = true)
-	private void onSendPacketLastly(Packet<?> packet, CallbackInfo ci) {
-		if (packet instanceof HandSwingC2SPacket) {
-			if (SongPlayer.fakePlayer != null && !ci.isCancelled()) {
-				SongPlayer.fakePlayer.swingHand(SongPlayer.fakePlayer.getActiveHand());
-			}
-		}
-	}
+	*/
 
 	@Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable=true)
 	private void onSendChatMessage(String content, CallbackInfo ci) {
@@ -100,7 +87,6 @@ public abstract class ClientPlayNetworkHandlerMixin {
 			}
 		}
 	}
-
 
 	@Inject(at = @At("TAIL"), method = "onGameJoin(Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;)V")
 	public void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {

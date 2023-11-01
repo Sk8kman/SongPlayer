@@ -8,8 +8,10 @@
   "client": [
     "ChatInputSuggestorMixin",
     "ClientPlayNetworkHandlerMixin",
+    "ClientCommonNetworkHandlerMixin",
     "InGameHudMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "MessageHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

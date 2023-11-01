@@ -1,17 +1,14 @@
 package com.github.hhhzzzsss.songplayer;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import com.github.hhhzzzsss.songplayer.config.ModProperties;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 
 public class SongPlayer implements ModInitializer {
 	//initialize variables
@@ -21,7 +18,7 @@ public class SongPlayer implements ModInitializer {
 	public static final File CONFIG_FILE = new File("SongPlayer/songPlayer.properties");
 	public static final File PLAYLISTS_DIR = new File("SongPlayer/playlists");
 	public static boolean showFakePlayer = false;
-	public static FakePlayerEntity fakePlayer;
+	public static com.github.hhhzzzsss.songplayer.FakePlayerEntity fakePlayer;
 	public static String creativeCommand;
 	public static String survivalCommand;
 	public static String playSoundCommand;
@@ -44,6 +41,12 @@ public class SongPlayer implements ModInitializer {
 	public static String prefix;
 	public static byte ignoreNoteThreshold;
 	public static int buildDelay;
+
+	//unused right now
+	public static boolean recording = false;
+	public static boolean recordingActive = false;
+	public static boolean recordingPaused = false;
+	public static int recordingtick = 0;
 	public static double[] pitchGlobal = { //used for /playsound
 		0.5, 0.529732, 0.561231, 0.594604, 0.629961, 0.66742, 0.707107, 0.749154, 0.793701, 0.840896, 0.890899, 0.943874, 1.0, 1.059463, 1.122462, 1.189207, 1.259921, 1.33484, 1.414214, 1.498307, 1.587401, 1.681793, 1.781797, 1.887749, 2.0};
 
@@ -51,7 +54,7 @@ public class SongPlayer implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		System.out.println("Loading SongPlayer v3.2.0 made by hhhzzzsss, forked by Sk8kman, and tested by Lizard16");
+		System.out.println("Loading SongPlayer v3.2.1 made by hhhzzzsss, forked by Sk8kman, and tested by Lizard16");
 		CommandProcessor.initCommands();
 		PLAYLISTS_DIR.mkdirs(); //make directories for everything
 		ModProperties.getInstance().setup(); //set up config file

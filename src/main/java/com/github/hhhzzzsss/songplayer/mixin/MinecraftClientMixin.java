@@ -33,6 +33,9 @@ public class MinecraftClientMixin {
 			SongHandler.getInstance().onUpdate(true);
 			Util.lastSwingPacket++;
 		}
+		if (SongPlayer.recording && SongPlayer.recordingActive) {
+			SongPlayer.recordingtick++;
+		}
 		ProgressDisplay.getInstance().onTick();
 	}
 }

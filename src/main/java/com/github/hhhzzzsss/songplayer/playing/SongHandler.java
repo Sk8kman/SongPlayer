@@ -50,7 +50,7 @@ public class SongHandler {
     public boolean building = false;
     public boolean paused = false;
 
-    public void onUpdate(boolean tick) {
+    public void onUpdate(Boolean tick) {
         if (currentSong == null && songQueue.size() > 0) {
             setSong(songQueue.poll());
         }
@@ -67,12 +67,15 @@ public class SongHandler {
             }
             loaderThread = null;
         }
-
+        if (SongPlayer.recording) {
+            setRecordingDisplay();
+        }
         if (currentSong == null) {
             if (songQueue.isEmpty() && Util.playlistSongs.isEmpty()) {
                 if (stage != null || SongPlayer.fakePlayer != null) {
                     if (stage != null) {
                         stage.movePlayerToStagePosition(false, false, false);
+                        Util.disableFlightIfNeeded();
                     }
                     cleanup(false);
                 }
@@ -107,6 +110,10 @@ public class SongHandler {
     public void loadSong(String location, File dir) {
         if (loaderThread != null) {
             SongPlayer.addChatMessage("§cAlready loading a song, cannot load another");
+            return;
+        }
+        if (SongPlayer.recording) {
+            SongPlayer.addChatMessage("§cCannot load song while recording noteblocks!");
             return;
         }
         try {
@@ -407,6 +414,21 @@ public class SongHandler {
         ProgressDisplay.getInstance().setText(text, empty);
     }
 
+    private void setRecordingDisplay() {
+        MutableText text = Text.empty();
+        MutableText subtext = Text.empty();
+
+        if (SongPlayer.recordingPaused) {
+            text.append("§6Recording | Paused");
+        } else if (!SongPlayer.recordingActive) {
+            text.append("§6Recording | waiting for noteblock to be played");
+        } else {
+            text.append("§6Recording");
+        }
+        subtext.append("§6notes: §30§6 | time: §3" + Util.formatTime(SongPlayer.recordingtick * 50) + "§6 | ");
+        ProgressDisplay.getInstance().setText(text, subtext);
+    }
+
     // Runs every frame
     private void handlePlaying(boolean tick) {
         setPlayProgressDisplay();
@@ -466,91 +488,91 @@ public class SongHandler {
 
         //cooldown is over!
 
-        if (tick) {
-            currentSong.play();
-            boolean somethingPlayed = false;
-            currentSong.advanceTime();
-            ClientPlayerEntity player = SongPlayer.MC.player;
-            if (player.isCreative() || player.isSpectator()) {
-                setSurvivalIfNeeded();
-            }
-            if (updatePlayerPosCooldown < 1) {
-                updatePlayerPosCooldown = 10;
-                Util.playerPosX = player.getX();
-                Util.playerPosZ = player.getZ();
-            }
-            SoundEvent[] soundlist = {SoundEvents.BLOCK_NOTE_BLOCK_HARP.value(), SoundEvents.BLOCK_NOTE_BLOCK_BASEDRUM.value(), SoundEvents.BLOCK_NOTE_BLOCK_SNARE.value(), SoundEvents.BLOCK_NOTE_BLOCK_HAT.value(), SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundEvents.BLOCK_NOTE_BLOCK_FLUTE.value(), SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundEvents.BLOCK_NOTE_BLOCK_GUITAR.value(), SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), SoundEvents.BLOCK_NOTE_BLOCK_XYLOPHONE.value(), SoundEvents.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE.value(), SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(), SoundEvents.BLOCK_NOTE_BLOCK_DIDGERIDOO.value(), SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundEvents.BLOCK_NOTE_BLOCK_BANJO.value(), SoundEvents.BLOCK_NOTE_BLOCK_PLING.value()};
-            World world = SongPlayer.MC.player.getWorld();
-            ArrayList<Integer> playedNotes = new ArrayList<>();
-            while (currentSong.reachedNextNote()) {
-                Note note = currentSong.getNextNote();
-                Byte voln = note.volume;
-                float volfloat = (float) (voln / 127.0);
-                String volume = String.valueOf(volfloat);
-                if (SongPlayer.parseVolume) {
-                    if (SongPlayer.ignoreNoteThreshold > voln) { //skip note - too quiet
-                        continue;
-                    }
-                    if (volume.length() > 4) {
-                        volume = volume.substring(0, 6);
-                        if (volume.endsWith(".")) {
-                            volume = volume + "0";
-                        } else if (!volume.contains(".")) {
-                            volume = volume + ".0";
-                        }
-                    }
-                }
-                if (playedNotes.contains(note.noteId)) {
+        if (!tick) {
+            return;
+        }
+        currentSong.play();
+        boolean somethingPlayed = false;
+        currentSong.advanceTime();
+        ClientPlayerEntity player = SongPlayer.MC.player;
+        if (player.isCreative() || player.isSpectator()) {
+            setSurvivalIfNeeded();
+        }
+        if (updatePlayerPosCooldown < 1) {
+            updatePlayerPosCooldown = 10;
+            Util.playerPosX = player.getX();
+            Util.playerPosZ = player.getZ();
+        }
+        SoundEvent[] soundlist = {SoundEvents.BLOCK_NOTE_BLOCK_HARP.value(), SoundEvents.BLOCK_NOTE_BLOCK_BASEDRUM.value(), SoundEvents.BLOCK_NOTE_BLOCK_SNARE.value(), SoundEvents.BLOCK_NOTE_BLOCK_HAT.value(), SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundEvents.BLOCK_NOTE_BLOCK_FLUTE.value(), SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), SoundEvents.BLOCK_NOTE_BLOCK_GUITAR.value(), SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), SoundEvents.BLOCK_NOTE_BLOCK_XYLOPHONE.value(), SoundEvents.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE.value(), SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(), SoundEvents.BLOCK_NOTE_BLOCK_DIDGERIDOO.value(), SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundEvents.BLOCK_NOTE_BLOCK_BANJO.value(), SoundEvents.BLOCK_NOTE_BLOCK_PLING.value()};
+        World world = SongPlayer.MC.player.getWorld();
+        ArrayList<Integer> playedNotes = new ArrayList<>();
+        while (currentSong.reachedNextNote()) {
+            Note note = currentSong.getNextNote();
+            Byte voln = note.volume;
+            float volfloat = (float) (voln / 127.0);
+            String volume = String.valueOf(volfloat);
+            if (SongPlayer.parseVolume) {
+                if (SongPlayer.ignoreNoteThreshold > voln) { //skip note - too quiet
                     continue;
                 }
-                playedNotes.add(note.noteId);
-                if (SongPlayer.useNoteblocksWhilePlaying) {
-                    BlockPos bp = stage.noteblockPositions.get(note.noteId);
-                    if (bp != null) {
-                        attackBlock(bp);
-                        somethingPlayed = true;
-                    }
-                } else if (SongPlayer.useCommandsForPlaying) {
-                    if (SongPlayer.disablecommandplaynote) {
-                        break;
-                    }
-                    String[] instrumentNames = {"harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar", "chime", "xylophone", "iron_xylophone", "cow_bell", "didgeridoo", "bit", "banjo", "pling"};
-                    int instrument = note.noteId / 25;
-                    int pitchID = (note.noteId % 25);
-                    double pitch = SongPlayer.pitchGlobal[pitchID];
-                    if (pitch > 2.0) pitch = 2.0;
-                    if (pitch < 0.5) pitch = 0.5;
-                    String command;
-                    if (!SongPlayer.parseVolume) {
-                        volume = "1.0";
-                    }
-                    command = SongPlayer.playSoundCommand.replace("{type}", instrumentNames[instrument]).replace("{volume}", String.valueOf(volume)).replace("{pitch}", Double.toString(pitch));
-                    if (SongPlayer.includeCommandBlocks) {
-                        Util.sendCommandWithCommandblocks(command);
-                    } else {
-                        SongPlayer.MC.getNetworkHandler().sendCommand(command);
-                    }
-                } else { //play client-side
-                    if (SongPlayer.parseVolume) {
-                        player.playSound(soundlist[note.noteId / 25], SoundCategory.RECORDS, volfloat, (float) SongPlayer.pitchGlobal[(note.noteId % 25)]);
-                    } else {
-                        world.playSound(Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) SongPlayer.pitchGlobal[(note.noteId % 25)], false);
+                if (volume.length() > 4) {
+                    volume = volume.substring(0, 6);
+                    if (volume.endsWith(".")) {
+                        volume = volume + "0";
+                    } else if (!volume.contains(".")) {
+                        volume = volume + ".0";
                     }
                 }
             }
+            if (playedNotes.contains(note.noteId)) {
+                continue;
+            }
+            playedNotes.add(note.noteId);
+            if (SongPlayer.useNoteblocksWhilePlaying) {
+                BlockPos bp = stage.noteblockPositions.get(note.noteId);
+                if (bp != null) {
+                    attackBlock(bp);
+                    somethingPlayed = true;
+                }
+            } else if (SongPlayer.useCommandsForPlaying) {
+                if (SongPlayer.disablecommandplaynote) {
+                    break;
+                }
+                String[] instrumentNames = {"harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar", "chime", "xylophone", "iron_xylophone", "cow_bell", "didgeridoo", "bit", "banjo", "pling"};
+                int instrument = note.noteId / 25;
+                int pitchID = (note.noteId % 25);
+                double pitch = SongPlayer.pitchGlobal[pitchID];
+                if (pitch > 2.0) pitch = 2.0;
+                if (pitch < 0.5) pitch = 0.5;
+                String command;
+                if (!SongPlayer.parseVolume) {
+                    volume = "1.0";
+                }
+                command = SongPlayer.playSoundCommand.replace("{type}", instrumentNames[instrument]).replace("{volume}", String.valueOf(volume)).replace("{pitch}", Double.toString(pitch));
+                if (SongPlayer.includeCommandBlocks) {
+                    Util.sendCommandWithCommandblocks(command);
+                } else {
+                    SongPlayer.MC.getNetworkHandler().sendCommand(command);
+                }
+            } else { //play client-side
+                if (SongPlayer.parseVolume) {
+                    player.playSound(soundlist[note.noteId / 25], SoundCategory.RECORDS, volfloat, (float) SongPlayer.pitchGlobal[(note.noteId % 25)]);
+                } else {
+                    world.playSound(Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) SongPlayer.pitchGlobal[(note.noteId % 25)], false);
+                }
+            }
+        }
 
-            if (somethingPlayed) {
-                stopAttack();
+        if (somethingPlayed) {
+            stopAttack();
+        }
+        if (currentSong.finished()) {
+            Util.playcooldown = Calendar.getInstance().getTime().getTime() + 1500;
+            if (Util.currentPlaylist.isEmpty()) {
+                SongPlayer.addChatMessage("§6Done playing §3" + currentSong.name);
             }
-            if (currentSong.finished()) {
-                Util.playcooldown = Calendar.getInstance().getTime().getTime() + 1500;
-                if (Util.currentPlaylist.isEmpty()) {
-                    SongPlayer.addChatMessage("§6Done playing §3" + currentSong.name);
-                }
-                currentSong = null;
-                Util.advancePlaylist();
-                Util.disableFlightIfNeeded();
-            }
+            currentSong = null;
+            Util.advancePlaylist();
         }
     }
 
@@ -635,12 +657,11 @@ public class SongHandler {
     }
     private void checkCommandCache() {
         //does not handle useCommandsForPlaying mode
-        if (cachedCommand != null) {
-            if (System.currentTimeMillis() >= lastCommandTime + 1500 || (SongPlayer.MC.player.hasPermissionLevel(2) && System.currentTimeMillis() >= lastCommandTime + 250)) {
-                SongPlayer.MC.getNetworkHandler().sendCommand(cachedCommand);
-                cachedCommand = null;
-                lastCommandTime = System.currentTimeMillis();
-            }
+        if (cachedCommand == null) return;
+        if (System.currentTimeMillis() >= lastCommandTime + 1500 || (SongPlayer.MC.player.hasPermissionLevel(2) && System.currentTimeMillis() >= lastCommandTime + 250)) {
+            SongPlayer.MC.getNetworkHandler().sendCommand(cachedCommand);
+            cachedCommand = null;
+            lastCommandTime = System.currentTimeMillis();
         }
     }
     private void setCreativeIfNeeded() {

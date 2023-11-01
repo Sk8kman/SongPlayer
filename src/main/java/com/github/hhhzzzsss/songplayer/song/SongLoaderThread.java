@@ -39,6 +39,9 @@ public class SongLoaderThread extends Thread{
 		else if (getSongFile(location+".nbs", dir).exists()) {
 			songPath = getSongFile(location+".nbs", dir);
 		}
+		else if (getSongFile(location+".txt", dir).exists()) {
+			songPath = getSongFile(location+".txt", dir);
+		}
 		else {
 			throw new IOException("Could not find song: " + location);
 		}
@@ -64,6 +67,13 @@ public class SongLoaderThread extends Thread{
 			if (song == null) {
 				try {
 					song = NBSConverter.getSongFromBytes(bytes, name);
+				}
+				catch (Exception e) {}
+			}
+
+			if (song == null) {
+				try {
+					song = TxtConverter.getSong(songPath);
 				}
 				catch (Exception e) {}
 			}
