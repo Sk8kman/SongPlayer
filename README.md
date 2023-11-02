@@ -9,7 +9,7 @@ This mod requires fabric api.
 # Adding songs
 You can put midis or NoteBlockStudio files in the `.minecraft/songs` folder.
 SongPlayer supports any valid midi and all versions of NBS files, as well as properly formatted .txt files.
-.txt formatted as `tick:pitch:instrument` in every line. example: 0:18:5
+.txt formatted as `tick:pitch:instrument` in every line. example: 0:18:5 
 *note: .txt can have lines commented out if they start with* ```#```
 
 # Using the client
