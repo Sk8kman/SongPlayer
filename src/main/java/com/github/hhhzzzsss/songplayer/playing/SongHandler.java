@@ -541,7 +541,7 @@ public class SongHandler {
                 String[] instrumentNames = {"harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar", "chime", "xylophone", "iron_xylophone", "cow_bell", "didgeridoo", "bit", "banjo", "pling"};
                 int instrument = note.noteId / 25;
                 int pitchID = (note.noteId % 25);
-                double pitch = SongPlayer.pitchGlobal[pitchID];
+                double pitch = Math.pow(2, (pitchID + note.pitchCorrection/100.0 - 12) / 12);
                 if (pitch > 2.0) pitch = 2.0;
                 if (pitch < 0.5) pitch = 0.5;
                 String command;
@@ -556,9 +556,9 @@ public class SongHandler {
                 }
             } else { //play client-side
                 if (SongPlayer.parseVolume) {
-                    player.playSound(soundlist[note.noteId / 25], SoundCategory.RECORDS, volfloat, (float) SongPlayer.pitchGlobal[(note.noteId % 25)]);
+                    player.playSound(soundlist[note.noteId / 25], SoundCategory.RECORDS, volfloat, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12));
                 } else {
-                    world.playSound(Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) SongPlayer.pitchGlobal[(note.noteId % 25)], false);
+                    world.playSound(Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12), false);
                 }
             }
         }
@@ -626,9 +626,11 @@ public class SongHandler {
     }
 
     public void cleanup(boolean includePlaylist) {
-        if (!includePlaylist && Util.playlistSongs.size() > 0) {
-            return;
-        }
+//        if (!includePlaylist && Util.playlistSongs.size() > 0) {
+//            return;
+//        }
+//        System.out.println("Setting gamemode to Creative");
+        setCreativeIfNeeded();
         currentSong = null;
         songQueue.clear();
         stage = null;
@@ -636,6 +638,7 @@ public class SongHandler {
         Util.availableCommandBlocks.clear();
         Util.playlistSongs.clear();
         Util.currentPlaylist = "";
+        Util.playlistIndex = 0;
         Util.playlistIndex = 0;
         Util.loopPlaylist = false;
         SongPlayer.removeFakePlayer();

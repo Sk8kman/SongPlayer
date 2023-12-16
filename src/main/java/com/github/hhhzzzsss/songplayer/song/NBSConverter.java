@@ -30,7 +30,7 @@ public class NBSConverter {
         public short layer;
         public byte instrument;
         public byte key;
-        public byte velocity = 127;
+        public byte velocity = 100;
         public byte panning = 127;
         public short pitch = 0;
     }
@@ -145,13 +145,13 @@ public class NBSConverter {
 
             instrument = instrumentIndex[note.instrument];
 
-            byte layerVolume = 127; //is this variable assigned to the volume of the note? I didn't think nbs files had such a feature.
+            byte layerVolume = 100; //is this variable assigned to the volume of the note? I didn't think nbs files had such a feature.
             if (nbsLayers.size() > note.layer) {
                 layerVolume = nbsLayers.get(note.layer).volume;
             }
             int pitch = note.key-33;
             int noteId = pitch + instrument.instrumentId*25;
-            song.add(new Note(noteId, getMilliTime(note.tick, tempo), layerVolume));
+            song.add(new Note(noteId, getMilliTime(note.tick, tempo), (byte) (note.velocity/100.0*layerVolume/100.0*127), note.pitch));
         }
 
         song.length = song.get(song.size()-1).time + 50;

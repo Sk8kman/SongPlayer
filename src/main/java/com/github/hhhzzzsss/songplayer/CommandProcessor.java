@@ -1696,7 +1696,7 @@ public class CommandProcessor {
 			}
 			Song song = new Song("test_song");
 			for (int i=0; i<400; i++) {
-				song.add(new Note(i, i*50, (byte) 127));
+				song.add(new Note(i, i*50, (byte) 127, (short) 0));
 			}
 			song.length = 400*50;
 			SongHandler.getInstance().setSong(song);
