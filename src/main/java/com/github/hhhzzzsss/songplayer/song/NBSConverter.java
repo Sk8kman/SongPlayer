@@ -31,7 +31,7 @@ public class NBSConverter {
         public byte instrument;
         public byte key;
         public byte velocity = 100;
-        public byte panning = 127;
+        public int panning = 100;
         public short pitch = 0;
     }
 
@@ -105,7 +105,7 @@ public class NBSConverter {
                 note.key = buffer.get();
                 if (format >= 4) {
                     note.velocity = buffer.get();
-                    note.panning = buffer.get();
+                    note.panning = buffer.get() & 0xff;
                     note.pitch = buffer.getShort();
                 }
                 nbsNotes.add(note);
@@ -151,7 +151,7 @@ public class NBSConverter {
             }
             int pitch = note.key-33;
             int noteId = pitch + instrument.instrumentId*25;
-            song.add(new Note(noteId, getMilliTime(note.tick, tempo), (byte) (note.velocity/100.0*layerVolume/100.0*127), note.pitch));
+            song.add(new Note(noteId, getMilliTime(note.tick, tempo), (byte) (note.velocity/100.0*layerVolume/100.0*127), note.pitch, note.panning));
         }
 
         song.length = song.get(song.size()-1).time + 50;

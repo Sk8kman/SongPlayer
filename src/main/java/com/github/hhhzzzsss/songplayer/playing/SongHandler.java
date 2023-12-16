@@ -542,13 +542,12 @@ public class SongHandler {
                 int instrument = note.noteId / 25;
                 int pitchID = (note.noteId % 25);
                 double pitch = Math.pow(2, (pitchID + note.pitchCorrection/100.0 - 12) / 12);
-                if (pitch > 2.0) pitch = 2.0;
-                if (pitch < 0.5) pitch = 0.5;
+                if (pitch < 0.5 || pitch > 2.0) continue;
                 String command;
                 if (!SongPlayer.parseVolume) {
                     volume = "1.0";
                 }
-                command = SongPlayer.playSoundCommand.replace("{type}", instrumentNames[instrument]).replace("{volume}", String.valueOf(volume)).replace("{pitch}", Double.toString(pitch));
+                command = SongPlayer.playSoundCommand.replace("{type}", instrumentNames[instrument]).replace("{volume}", String.valueOf(volume)).replace("{pitch}", Double.toString(pitch)).replace("{panning}", String.valueOf((note.panning-100)/100.0*2));
                 if (SongPlayer.includeCommandBlocks) {
                     Util.sendCommandWithCommandblocks(command);
                 } else {
