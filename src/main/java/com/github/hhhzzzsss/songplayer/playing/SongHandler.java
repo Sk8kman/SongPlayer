@@ -625,11 +625,9 @@ public class SongHandler {
     }
 
     public void cleanup(boolean includePlaylist) {
-//        if (!includePlaylist && Util.playlistSongs.size() > 0) {
-//            return;
-//        }
-//        System.out.println("Setting gamemode to Creative");
-        setCreativeIfNeeded();
+        if (!includePlaylist && Util.playlistSongs.size() > 0) {
+            return;
+        }
         currentSong = null;
         songQueue.clear();
         stage = null;
@@ -637,7 +635,6 @@ public class SongHandler {
         Util.availableCommandBlocks.clear();
         Util.playlistSongs.clear();
         Util.currentPlaylist = "";
-        Util.playlistIndex = 0;
         Util.playlistIndex = 0;
         Util.loopPlaylist = false;
         SongPlayer.removeFakePlayer();
