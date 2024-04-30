@@ -48,7 +48,7 @@ public class ModProperties {
             updateValue("prefix", "$");
             updateValue("creativeCommand", "gamemode creative");
             updateValue("survivalCommand", "gamemode survival");
-            updateValue("playSoundCommand", "execute as @a at @s run playsound minecraft:block.note_block.{type} record @p ~ ~ ~ {volume} {pitch}");
+            updateValue("playSoundCommand", "execute as @a at @s positioned ^{panning} ^ ^ run playsound minecraft:block.note_block.{type} record @s ~ ~ ~ {volume} {pitch}");
             updateValue("stageType", "default");
             updateValue("showProgressCommand",
                     "execute at @a unless entity @s run title @p actionbar [" +
@@ -89,7 +89,7 @@ public class ModProperties {
             createValue("prefix", "$");
             createValue("creativeCommand", "gamemode creative");
             createValue("survivalCommand", "gamemode survival");
-            createValue("playSoundCommand", "execute as @a at @s run playsound minecraft:block.note_block.{type} record @p ~ ~ ~ {volume} {pitch}");
+            createValue("playSoundCommand", "execute as @a at @s positioned ^{panning} ^ ^ run playsound minecraft:block.note_block.{type} record @s ~ ~ ~ {volume} {pitch}");
             createValue("stageType", "default");
             createValue("showProgressCommand",
                     "execute at @a unless entity @s run title @p actionbar [" +

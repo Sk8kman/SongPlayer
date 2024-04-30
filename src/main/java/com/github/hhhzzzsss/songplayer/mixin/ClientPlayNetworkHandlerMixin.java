@@ -22,61 +22,6 @@ import net.minecraft.network.ClientConnection;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin {
-	/*
-
-	@Inject(at = @At("HEAD"), method = "sendPacket(Lnet/minecraft/network/packet/Packet;)V", cancellable = true)
-	private void onSendPacket(Packet<?> packet, PacketCallbacks pc, CallbackInfo ci) {
-		Stage stage = SongHandler.getInstance().stage;
-		if (stage == null || !SongPlayer.useNoteblocksWhilePlaying || SongHandler.getInstance().paused) {
-			return;
-		}
-
-		if (packet instanceof PlayerMoveC2SPacket) { //override any movement packets to the stage position, as well as rotation if needed.
-			PlayerMoveC2SPacket movePacket = (PlayerMoveC2SPacket) packet;
-			if (SongPlayer.rotate) {
-				if (Util.lastPitch == Util.pitch && Util.lastYaw == Util.yaw) { //prevent sending rotations if you are already facing that direction
-					ci.cancel();
-				} else {
-					connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, Util.yaw, Util.pitch, true));
-				}
-			} else {
-				if ((movePacket).changesLook()) {
-					connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch(), true));
-				} else {
-					connection.send(new PlayerMoveC2SPacket.PositionAndOnGround(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, true));
-				}
-			}
-			if (SongPlayer.fakePlayer != null) {
-				SongPlayer.fakePlayer.copyStagePosAndPlayerLook();
-			}
-			ci.cancel();
-		} else if (packet instanceof VehicleMoveC2SPacket) { //prevents moving in a boat or whatever while playing
-			Util.pauseSongIfNeeded();
-			Util.lagBackCounter = 0;
-			SongPlayer.addChatMessage("§6Your song has been paused because you were moved away from your stage. Go back to your stage and type §3" + SongPlayer.prefix + "resume");
-		} else if (packet instanceof TeleportConfirmC2SPacket) { //prevents lagbacks client side
-			Util.lagBackCounter++;
-			TeleportConfirmC2SPacket tpacket = (TeleportConfirmC2SPacket) packet;
-			SongPlayer.addChatMessage(tpacket.getTeleportId() + " - tpacket ID");
-			if (Util.lagBackCounter > 3) {
-				Util.pauseSongIfNeeded();
-				SongPlayer.addChatMessage("§6Your song has been paused because you were moved away from your stage. Go back to your stage and type §3" + SongPlayer.prefix + "resume");
-				Util.lagBackCounter = 0;
-			} else {
-				ci.cancel();
-			}
-		} else if (packet instanceof ClientCommandC2SPacket) { //prevents sprinting while playing
-			ClientCommandC2SPacket sprinting = (ClientCommandC2SPacket) packet;
-			ClientCommandC2SPacket.Mode mode = sprinting.getMode();
-			if (mode.equals(ClientCommandC2SPacket.Mode.START_SPRINTING) || mode.equals(ClientCommandC2SPacket.Mode.STOP_SPRINTING)) {
-				ci.cancel();
-			}
-		}/* else if (packet instanceof TeleportConfirmC2SPacket) {
-			SongPlayer.addChatMessage("tp c2s packet sent");
-		}
-	}
-	*/
-
 	@Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable=true)
 	private void onSendChatMessage(String content, CallbackInfo ci) {
 		boolean isCommand = CommandProcessor.processChatMessage(content);

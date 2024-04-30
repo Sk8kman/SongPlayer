@@ -1,5 +1,7 @@
 package com.github.hhhzzzsss.songplayer.song;
 
+import org.jetbrains.annotations.Nullable;
+
 public class Note implements Comparable<Note> {
 	public int noteId;
 	public long time;
@@ -11,15 +13,15 @@ public class Note implements Comparable<Note> {
 		this.time = time;
 		this.volume = volume;
 		this.pitchCorrection = pitchCorrection;
-        panning = 100;
-    }
+		panning = 100;
+	}
 
 	public Note(int note, long time, byte volume, short pitchCorrection, int panning) {
 		this.noteId = note;
 		this.time = time;
 		this.volume = volume;
 		this.pitchCorrection = pitchCorrection;
-        this.panning = panning;
+		this.panning = panning;
 	}
 
 	@Override

@@ -5,18 +5,32 @@ import com.github.hhhzzzsss.songplayer.SongPlayer;
 import com.github.hhhzzzsss.songplayer.Util;
 import com.github.hhhzzzsss.songplayer.song.*;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.enums.Instrument;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.component.*;
+import net.minecraft.component.type.BlockStateComponent;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -24,13 +38,17 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import java.io.File;
 import java.io.IOException;
+import java.rmi.registry.Registry;
 import java.util.*;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 public class SongHandler {
     public static ItemStack oldItemHeld = null;
@@ -49,6 +67,7 @@ public class SongHandler {
     public Stage stage = null;
     public boolean building = false;
     public boolean paused = false;
+    int bandaidpatch;
 
     public void onUpdate(Boolean tick) {
         if (currentSong == null && songQueue.size() > 0) {
@@ -542,7 +561,8 @@ public class SongHandler {
                 int instrument = note.noteId / 25;
                 int pitchID = (note.noteId % 25);
                 double pitch = Math.pow(2, (pitchID + note.pitchCorrection/100.0 - 12) / 12);
-                if (pitch < 0.5 || pitch > 2.0) continue;
+                if (pitch > 2.0) pitch = 2.0;
+                if (pitch < 0.5) pitch = 0.5;
                 String command;
                 if (!SongPlayer.parseVolume) {
                     volume = "1.0";
@@ -555,7 +575,7 @@ public class SongHandler {
                 }
             } else { //play client-side
                 if (SongPlayer.parseVolume) {
-                    player.playSound(soundlist[note.noteId / 25], SoundCategory.RECORDS, volfloat, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12));
+                    player.playSound(soundlist[note.noteId / 25], volfloat, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12));
                 } else {
                     world.playSound(Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12), false);
                 }
@@ -696,24 +716,21 @@ public class SongHandler {
         }
     }
 
-    private final String[] instrumentNames = {"harp", "basedrum", "snare", "hat", "bass", "flute", "bell", "guitar", "chime", "xylophone", "iron_xylophone", "cow_bell", "didgeridoo", "bit", "banjo", "pling"};
+    private final Instrument[] instruments = {Instrument.HARP, Instrument.BASEDRUM, Instrument.SNARE, Instrument.HAT, Instrument.BASS, Instrument.FLUTE, Instrument.BELL, Instrument.GUITAR, Instrument.CHIME, Instrument.XYLOPHONE, Instrument.IRON_XYLOPHONE, Instrument.COW_BELL, Instrument.DIDGERIDOO, Instrument.BIT, Instrument.BANJO, Instrument.PLING};
     private void holdNoteblock(int id) {
         PlayerInventory inventory = SongPlayer.MC.player.getInventory();
         if (oldItemHeld == null) {
             oldItemHeld = inventory.getMainHandStack();
         }
+        bandaidpatch = id;
         int instrument = id/25;
         int note = id%25;
-        NbtCompound nbt = new NbtCompound();
-        nbt.putString("id", "minecraft:note_block");
-        nbt.putByte("Count", (byte) 1);
-        NbtCompound tag = new NbtCompound();
-        NbtCompound bsTag = new NbtCompound();
-        bsTag.putString("instrument", instrumentNames[instrument]);
-        bsTag.putString("note", Integer.toString(note));
-        tag.put("BlockStateTag", bsTag);
-        nbt.put("tag", tag);
-        inventory.main.set(inventory.selectedSlot, ItemStack.fromNbt(nbt));
+
+        ItemStack noteblock = Items.NOTE_BLOCK.getDefaultStack();
+        BlockStateComponent bsc = BlockStateComponent.DEFAULT.with(Properties.INSTRUMENT, instruments[instrument]).with(Properties.NOTE, note);
+        noteblock.set(DataComponentTypes.BLOCK_STATE, bsc);
+
+        inventory.main.set(inventory.selectedSlot, noteblock);
         SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.selectedSlot);
     }
 
@@ -731,6 +748,10 @@ public class SongHandler {
             SongPlayer.MC.player.networkHandler.sendPacket(packet);
         }
         if (SongPlayer.usePacketsOnlyWhilePlaying) {
+            if (SongPlayer.switchGamemode) {
+                SongPlayer.MC.player.getWorld().playSound(bp.getX(), bp.getY(), bp.getZ(), Blocks.NOTE_BLOCK.getDefaultState().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 0.8f, true);
+                SongPlayer.MC.player.getWorld().setBlockState(bp, Blocks.NOTE_BLOCK.getDefaultState().with(Properties.INSTRUMENT, instruments[bandaidpatch/25]).with(Properties.NOTE, bandaidpatch%25));
+            }
             PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(SongPlayer.MC.player.getActiveHand(), new BlockHitResult(new Vec3d(fx, fy, fz), Direction.DOWN, bp, false), 0);
             SongPlayer.MC.getNetworkHandler().sendPacket(packet);
         } else {
@@ -748,6 +769,10 @@ public class SongHandler {
             player.networkHandler.sendPacket(packet);
         }
         if (SongPlayer.usePacketsOnlyWhilePlaying) {
+            if (SongHandler.getInstance().building && SongPlayer.switchGamemode) {
+                SongPlayer.MC.world.playSound(bp.getX(), bp.getY(), bp.getZ(), SongPlayer.MC.world.getBlockState(bp).getBlock().getDefaultState().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 0.8f, true);
+                SongPlayer.MC.world.setBlockState(bp, Blocks.AIR.getDefaultState());
+            }
             PlayerActionC2SPacket attack = new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, bp, Direction.DOWN);
             PlayerActionC2SPacket stopattack = new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK, bp, Direction.DOWN);
             SongPlayer.MC.getNetworkHandler().sendPacket(attack);
