@@ -40,7 +40,7 @@ public class TxtConverter {
             if (tick > lasttick) {
                 lasttick = tick;
             }
-            song.add(new Note((instrument * 25 + pitch), tick * 50, (byte) 127));
+            song.add(new Note((instrument * 25 + pitch), tick * 50, (byte) 127, (short) 0));
         }
         song.length = lasttick * 50;
         return song;

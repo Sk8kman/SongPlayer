@@ -161,7 +161,7 @@ public class MidiConverter {
 		int noteId = pitch + instrument.instrumentId*25;
 		long time = microTime / 1000L;
 
-		return new Note(noteId, time, volume);
+		return new Note(noteId, time, volume, (short) 0);
 	}
 
 	private static Note getMidiPercussionNote(int midiPitch, long microTime, byte volume) {
@@ -169,7 +169,7 @@ public class MidiConverter {
 			int noteId = percussionMap.get(midiPitch);
 			long time = microTime / 1000L;
 
-			return new Note(noteId, time, volume);
+			return new Note(noteId, time, volume, (short) 0);
 		}
 		return null;
 	}

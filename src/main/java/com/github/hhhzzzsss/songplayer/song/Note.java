@@ -4,10 +4,22 @@ public class Note implements Comparable<Note> {
 	public int noteId;
 	public long time;
 	public byte volume;
-	public Note(int note, long time, byte volume) {
+	public short pitchCorrection;
+	public int panning;
+	public Note(int note, long time, byte volume, short pitchCorrection) {
 		this.noteId = note;
 		this.time = time;
 		this.volume = volume;
+		this.pitchCorrection = pitchCorrection;
+        panning = 100;
+    }
+
+	public Note(int note, long time, byte volume, short pitchCorrection, int panning) {
+		this.noteId = note;
+		this.time = time;
+		this.volume = volume;
+		this.pitchCorrection = pitchCorrection;
+        this.panning = panning;
 	}
 
 	@Override
