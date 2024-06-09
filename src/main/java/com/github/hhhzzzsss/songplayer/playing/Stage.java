@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.github.hhhzzzsss.songplayer.SongPlayer;
-
+import com.github.hhhzzzsss.songplayer.ThePatch;
 import com.github.hhhzzzsss.songplayer.Util;
 import com.github.hhhzzzsss.songplayer.config.ModProperties;
 import com.github.hhhzzzsss.songplayer.song.Song;
@@ -337,6 +337,11 @@ public class Stage {
 					for (int z = -5; z < 6; z++) {
 						BlockPos targetBlock = new BlockPos(position.getX() + x, position.getY() + y, position.getZ() + z);
 						if (new BlockPos(position.getX(), position.getY(), position.getZ()).getSquaredDistance(targetBlock) <= maxBlockDistThreshold[(y+4)]) { //check if location is close enough to stage
+
+							
+							ThePatch.patch(targetBlock);//patch some server or some core hides note block attributes
+
+							
 							BlockState noteblock = SongPlayer.MC.world.getBlockState(targetBlock);
 							int blockId = Block.getRawIdFromState(noteblock);
 							if (blockId >= SongPlayer.NOTEBLOCK_BASE_ID && blockId < SongPlayer.NOTEBLOCK_BASE_ID+800 && SongPlayer.MC.world.getBlockState(targetBlock.up()).isAir()) { //make sure block is a noteblock and the block above it is air before adding
