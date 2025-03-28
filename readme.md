@@ -1,6 +1,6 @@
 # SongPlayer
 A Fabric mod for Minecraft that plays songs with noteblocks.
-The current version is for Minecraft 1.20.5 - 1.20.6
+The current version is for Minecraft 1.21.5
 
 # How to install
 You can grab the mod jar from releases section.
@@ -180,6 +180,10 @@ SongPlayer will read the song file and play it on your game. No one else can hea
 This is nice if you want to test out song files before playing them for everyone else, or if you just want to enjoy your songs without any interruptions of other players.
 
 # --- CHANGELOGS ---
+### 3.2.4
+```
+- 1.21.5 support
+```
 ### 3.2.3
 ```
 - 1.21.4 support

@@ -1206,8 +1206,8 @@ public class CommandProcessor {
 
 			if (SongHandler.oldItemHeld != null) {
 				PlayerInventory inventory = SongPlayer.MC.player.getInventory();
-				inventory.setStack(inventory.selectedSlot, SongHandler.oldItemHeld);
-				SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.selectedSlot);
+				inventory.setStack(inventory.getSelectedSlot(), SongHandler.oldItemHeld);
+				SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.getSelectedSlot());
 				SongHandler.oldItemHeld = null;
 			}
 

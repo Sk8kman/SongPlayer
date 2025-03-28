@@ -39,7 +39,7 @@ public class FakePlayerEntity extends OtherClientPlayerEntity {
 			ClientPlayerEntity player = SongPlayer.MC.player;
 			this.getInventory().clone(player.getInventory());
 			this.getAttributes().setFrom(player.getAttributes());
-			this.getInventory().selectedSlot = player.getInventory().selectedSlot;
+			this.getInventory().setSelectedStack(player.getInventory().getSelectedStack());
 			this.setSneaking(player.isSneaking());
 			this.setCurrentHand(SongPlayer.MC.player.getActiveHand());
 			if (this.isSneaking()) {

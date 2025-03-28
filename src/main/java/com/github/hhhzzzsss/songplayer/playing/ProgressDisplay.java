@@ -33,21 +33,20 @@ public class ProgressDisplay {
         if (fade <= 0) {
             return;
         }
-        int i = SongPlayer.MC.inGameHud.getTextRenderer().getWidth(topText);
-        int j = (context.getScaledWindowWidth() - i) / 2;
-        int k = context.getScaledWindowHeight() - (heldItemTooltipFade > 0 ? 72 : 59);
+        int tw = SongPlayer.MC.inGameHud.getTextRenderer().getWidth(topText);
+        int bw = SongPlayer.MC.inGameHud.getTextRenderer().getWidth(bottomText);
+        int th = (context.getScaledWindowWidth() - tw) / 2;
+        int bh = (context.getScaledWindowWidth() - bw) / 2;
+        int k = context.getScaledWindowHeight() - (heldItemTooltipFade > 0 ? 88 : 75);
 
         int opacity = (int)((float)this.fade * 256.0F / 10.0F);
         if (opacity > 255) {
             opacity = 255;
         }
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         Objects.requireNonNull(SongPlayer.MC.textRenderer);
-        context.drawCenteredTextWithShadow(SongPlayer.MC.textRenderer, bottomText, j, k, 16777215 + (opacity << 24));
-        context.drawCenteredTextWithShadow(SongPlayer.MC.textRenderer, bottomText, j, k, 16777215 + (opacity << 24));
-        RenderSystem.disableBlend();
+        context.drawTextWithShadow(SongPlayer.MC.textRenderer, topText, th, k, 16777215 + (opacity << 24));
+        context.drawTextWithShadow(SongPlayer.MC.textRenderer, bottomText, bh, k + 15, 16777215 + (opacity << 24));
     }
 
     public void onTick() {

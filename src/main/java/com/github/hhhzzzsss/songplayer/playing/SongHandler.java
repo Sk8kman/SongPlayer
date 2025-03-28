@@ -230,8 +230,8 @@ public class SongHandler {
                     return;
                 }
                 if (oldItemHeld != null) {
-                    inventory.main.set(inventory.selectedSlot, oldItemHeld);
-                    SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.selectedSlot);
+                    inventory.setSelectedStack(oldItemHeld);
+                    SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.getSelectedSlot());
                     oldItemHeld = null;
                 }
                 setSurvivalIfNeeded();
@@ -564,7 +564,7 @@ public class SongHandler {
                 if (SongPlayer.parseVolume) {
                     player.playSound(soundlist[note.noteId / 25], volfloat, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12));
                 } else {
-                    world.playSound(Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12), false);
+                    world.playSound(SongPlayer.MC.player, Util.playerPosX, player.getY() + 3000000, Util.playerPosZ, soundlist[note.noteId / 25], SoundCategory.RECORDS, 30000000, (float) Math.pow(2, (note.noteId % 25 + note.pitchCorrection/100.0 - 12) / 12), 0);
                 }
             }
         }
@@ -691,11 +691,11 @@ public class SongHandler {
             return;
         }
         if (oldItemHeld != null) {
-            CreativeInventoryActionC2SPacket packet = new CreativeInventoryActionC2SPacket(SongPlayer.MC.player.getInventory().selectedSlot + 36, oldItemHeld);
+            CreativeInventoryActionC2SPacket packet = new CreativeInventoryActionC2SPacket(SongPlayer.MC.player.getInventory().getSelectedSlot() + 36, oldItemHeld);
             SongPlayer.MC.player.networkHandler.sendPacket(packet);
             PlayerInventory inventory = SongPlayer.MC.player.getInventory();
-            SongPlayer.MC.player.getInventory().main.set(inventory.selectedSlot, oldItemHeld.copy());
-            SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.selectedSlot);
+            SongPlayer.MC.player.getInventory().setSelectedStack(oldItemHeld.copy());
+            SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.getSelectedSlot());
             oldItemHeld = null;
         }
         if (SongPlayer.MC.interactionManager.getCurrentGameMode() != GameMode.SURVIVAL) {
@@ -707,7 +707,7 @@ public class SongHandler {
     private void holdNoteblock(int id) {
         PlayerInventory inventory = SongPlayer.MC.player.getInventory();
         if (oldItemHeld == null) {
-            oldItemHeld = inventory.getMainHandStack();
+            oldItemHeld = inventory.getSelectedStack();
         }
         bandaidpatch = id;
         int instrument = id/25;
@@ -717,8 +717,8 @@ public class SongHandler {
         BlockStateComponent bsc = BlockStateComponent.DEFAULT.with(Properties.INSTRUMENT, instruments[instrument]).with(Properties.NOTE, note);
         noteblock.set(DataComponentTypes.BLOCK_STATE, bsc);
 
-        inventory.main.set(inventory.selectedSlot, noteblock);
-        SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.selectedSlot);
+        inventory.setSelectedStack(noteblock);
+        SongPlayer.MC.interactionManager.clickCreativeStack(SongPlayer.MC.player.getStackInHand(Hand.MAIN_HAND), 36 + inventory.getSelectedSlot());
     }
 
     private void placeBlock(BlockPos bp) {
@@ -736,7 +736,7 @@ public class SongHandler {
         }
         if (SongPlayer.usePacketsOnlyWhilePlaying) {
             if (SongPlayer.switchGamemode) {
-                SongPlayer.MC.player.getWorld().playSound(bp.getX(), bp.getY(), bp.getZ(), Blocks.NOTE_BLOCK.getDefaultState().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 0.8f, true);
+                SongPlayer.MC.player.getWorld().playSound(SongPlayer.MC.player, bp.getX(), bp.getY(), bp.getZ(), Blocks.NOTE_BLOCK.getDefaultState().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 0.8f, 0);
                 SongPlayer.MC.player.getWorld().setBlockState(bp, Blocks.NOTE_BLOCK.getDefaultState().with(Properties.INSTRUMENT, instruments[bandaidpatch/25]).with(Properties.NOTE, bandaidpatch%25));
             }
             PlayerInteractBlockC2SPacket packet = new PlayerInteractBlockC2SPacket(SongPlayer.MC.player.getActiveHand(), new BlockHitResult(new Vec3d(fx, fy, fz), Direction.DOWN, bp, false), 0);
@@ -757,7 +757,7 @@ public class SongHandler {
         }
         if (SongPlayer.usePacketsOnlyWhilePlaying) {
             if (SongHandler.getInstance().building && SongPlayer.switchGamemode) {
-                SongPlayer.MC.world.playSound(bp.getX(), bp.getY(), bp.getZ(), SongPlayer.MC.world.getBlockState(bp).getBlock().getDefaultState().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 0.8f, true);
+                SongPlayer.MC.world.playSound(SongPlayer.MC.player, bp.getX(), bp.getY(), bp.getZ(), SongPlayer.MC.world.getBlockState(bp).getBlock().getDefaultState().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 0.8f, 0);
                 SongPlayer.MC.world.setBlockState(bp, Blocks.AIR.getDefaultState());
             }
             PlayerActionC2SPacket attack = new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.START_DESTROY_BLOCK, bp, Direction.DOWN);
