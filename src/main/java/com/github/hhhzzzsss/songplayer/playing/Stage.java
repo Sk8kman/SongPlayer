@@ -39,7 +39,7 @@ public class Stage {
 		}
 		SongPlayer.MC.player.refreshPositionAndAngles(position.getX() + 0.5, position.getY() + 0.0, position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch());
 		SongPlayer.MC.player.setVelocity(Vec3d.ZERO);
-		PlayerMoveC2SPacket moveToStagePacket = new PlayerMoveC2SPacket.PositionAndOnGround(position.getX() + 0.5, position.getY() + 0.0, position.getZ() + 0.5, true);
+		PlayerMoveC2SPacket moveToStagePacket = new PlayerMoveC2SPacket.PositionAndOnGround(position.getX() + 0.5, position.getY() + 0.0, position.getZ() + 0.5, true, false);
 		SongPlayer.MC.getNetworkHandler().sendPacket(moveToStagePacket);
 	}
 
@@ -63,7 +63,7 @@ public class Stage {
 			SongPlayer.MC.player.refreshPositionAndAngles(position.getX() + 0.5, position.getY() + 0.0, position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch());
 			SongPlayer.MC.player.setVelocity(Vec3d.ZERO);
 		}
-		PlayerMoveC2SPacket moveToStagePacket = new PlayerMoveC2SPacket.PositionAndOnGround(position.getX() + 0.5, position.getY() + 0.0, position.getZ() + 0.5, true);
+		PlayerMoveC2SPacket moveToStagePacket = new PlayerMoveC2SPacket.PositionAndOnGround(position.getX() + 0.5, position.getY() + 0.0, position.getZ() + 0.5, true, false);
 		SongPlayer.MC.getNetworkHandler().sendPacket(moveToStagePacket);
 	}
 

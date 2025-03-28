@@ -47,14 +47,12 @@ public class SongPlayer implements ModInitializer {
 	public static boolean recordingActive = false;
 	public static boolean recordingPaused = false;
 	public static int recordingtick = 0;
-	//public static double[] pitchGlobal = { //used for /playsound
-	//	0.5, 0.529732, 0.561231, 0.594604, 0.629961, 0.66742, 0.707107, 0.749154, 0.793701, 0.840896, 0.890899, 0.943874, 1.0, 1.059463, 1.122462, 1.189207, 1.259921, 1.33484, 1.414214, 1.498307, 1.587401, 1.681793, 1.781797, 1.887749, 2.0};
 
 	public static String[] instrumentList = {"Harp", "Base Drum", "Snare", "Hat", "Bass", "Flute", "Bell", "Guitar", "Chime", "Xylophone", "Iron Xylophone", "Cow Bell", "Didgeridoo", "Bit", "Banjo", "Pling"};
 
 	@Override
 	public void onInitialize() {
-		System.out.println("Loading SongPlayer v3.2.1 made by hhhzzzsss, forked by Sk8kman, and tested by Lizard16");
+		System.out.println("Loading SongPlayer v3.2.3 made by hhhzzzsss, forked by Sk8kman, and tested by Lizard16");
 		CommandProcessor.initCommands();
 		PLAYLISTS_DIR.mkdirs(); //make directories for everything
 		ModProperties.getInstance().setup(); //set up config file

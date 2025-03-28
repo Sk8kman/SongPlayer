@@ -5,32 +5,23 @@ import com.github.hhhzzzsss.songplayer.SongPlayer;
 import com.github.hhhzzzsss.songplayer.Util;
 import com.github.hhhzzzsss.songplayer.song.*;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.enums.Instrument;
+import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.component.*;
 import net.minecraft.component.type.BlockStateComponent;
-import net.minecraft.component.type.LoreComponent;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -38,17 +29,13 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.registry.Registry;
 import java.util.*;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 public class SongHandler {
     public static ItemStack oldItemHeld = null;
@@ -716,7 +703,7 @@ public class SongHandler {
         }
     }
 
-    private final Instrument[] instruments = {Instrument.HARP, Instrument.BASEDRUM, Instrument.SNARE, Instrument.HAT, Instrument.BASS, Instrument.FLUTE, Instrument.BELL, Instrument.GUITAR, Instrument.CHIME, Instrument.XYLOPHONE, Instrument.IRON_XYLOPHONE, Instrument.COW_BELL, Instrument.DIDGERIDOO, Instrument.BIT, Instrument.BANJO, Instrument.PLING};
+    private final NoteBlockInstrument[] instruments = {NoteBlockInstrument.HARP, NoteBlockInstrument.BASEDRUM, NoteBlockInstrument.SNARE, NoteBlockInstrument.HAT, NoteBlockInstrument.BASS, NoteBlockInstrument.FLUTE, NoteBlockInstrument.BELL, NoteBlockInstrument.GUITAR, NoteBlockInstrument.CHIME, NoteBlockInstrument.XYLOPHONE, NoteBlockInstrument.IRON_XYLOPHONE, NoteBlockInstrument.COW_BELL, NoteBlockInstrument.DIDGERIDOO, NoteBlockInstrument.BIT, NoteBlockInstrument.BANJO, NoteBlockInstrument.PLING};
     private void holdNoteblock(int id) {
         PlayerInventory inventory = SongPlayer.MC.player.getInventory();
         if (oldItemHeld == null) {
@@ -744,7 +731,7 @@ public class SongHandler {
 
         if (SongPlayer.rotate) {
             float[] pitchandyaw = Util.getAngleAtBlock(bp);
-            PlayerMoveC2SPacket packet = new PlayerMoveC2SPacket.LookAndOnGround(pitchandyaw[1], pitchandyaw[0], true);
+            PlayerMoveC2SPacket packet = new PlayerMoveC2SPacket.LookAndOnGround(pitchandyaw[1], pitchandyaw[0], true, false);
             SongPlayer.MC.player.networkHandler.sendPacket(packet);
         }
         if (SongPlayer.usePacketsOnlyWhilePlaying) {
@@ -765,7 +752,7 @@ public class SongHandler {
         ClientPlayerEntity player = SongPlayer.MC.player;
         if (SongPlayer.rotate) {
             float[] pitchandyaw = Util.getAngleAtBlock(bp);
-            PlayerMoveC2SPacket packet = new PlayerMoveC2SPacket.LookAndOnGround(pitchandyaw[1], pitchandyaw[0], true);
+            PlayerMoveC2SPacket packet = new PlayerMoveC2SPacket.LookAndOnGround(pitchandyaw[1], pitchandyaw[0], true, false);
             player.networkHandler.sendPacket(packet);
         }
         if (SongPlayer.usePacketsOnlyWhilePlaying) {

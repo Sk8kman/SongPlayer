@@ -16,9 +16,8 @@ public class InGameHudMixin {
     @Shadow
     private int heldItemTooltipFade;
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V"))
-    private void onRender(DrawContext context, float tickDelta, CallbackInfo ci) {
-        RenderSystem.enableBlend();
+    @Inject(method = "renderHeldItemTooltip", at = @At(value = "TAIL"))
+    private void onRenderHeldItemTooltip(DrawContext context, CallbackInfo ci) {
         ProgressDisplay.getInstance().onRenderHUD(context, heldItemTooltipFade);
     }
 }

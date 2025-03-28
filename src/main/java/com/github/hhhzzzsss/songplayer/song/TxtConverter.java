@@ -7,7 +7,6 @@ import java.io.*;
 public class TxtConverter {
     public static Song getSong(File file) throws IOException {
         if (!file.getName().endsWith(".txt")) {
-            SongPlayer.addChatMessage("Attempted to parse a non-txt file as a txt file");
             return null;
         }
         Song song = new Song(file.getName());

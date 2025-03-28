@@ -32,7 +32,6 @@ public class ModProperties {
             config.store(new FileOutputStream(cfgPath), "config file for SongPlayer");
         } catch(IOException e) {
             e.printStackTrace();
-            System.out.println("Dang it I just disappointed " + SongPlayer.MC.player.getName() + "... Sorry you have to see this error message.");
             SongPlayer.addChatMessage("§cThere was an error when attempting to save your settings.");
         }
     }
@@ -51,7 +50,7 @@ public class ModProperties {
             updateValue("playSoundCommand", "execute as @a at @s positioned ^{panning} ^ ^ run playsound minecraft:block.note_block.{type} record @s ~ ~ ~ {volume} {pitch}");
             updateValue("stageType", "default");
             updateValue("showProgressCommand",
-                    "execute at @a unless entity @s run title @p actionbar [" +
+                    "execute as @a run title @s actionbar [" +
                             "{\"color\":\"gold\",\"text\":\"Now playing \"}," +
                             "{\"color\":\"blue\",\"text\":\"{MIDI}\"}," +
                             "{\"color\":\"gold\",\"text\":\" | \"}," +
@@ -74,7 +73,6 @@ public class ModProperties {
             updateValue("disablecommanddisplayprogress", String.valueOf(false));
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Dang it I just disappointed " + SongPlayer.MC.player.getName() + "... Sorry you have to see this error message.");
             SongPlayer.addChatMessage("§cThere was an error when attempting to save your settings.");
         }
     }
@@ -92,7 +90,7 @@ public class ModProperties {
             createValue("playSoundCommand", "execute as @a at @s positioned ^{panning} ^ ^ run playsound minecraft:block.note_block.{type} record @s ~ ~ ~ {volume} {pitch}");
             createValue("stageType", "default");
             createValue("showProgressCommand",
-                    "execute at @a unless entity @s run title @p actionbar [" +
+                    "execute as @a run title @s actionbar [" +
                     "{\"color\":\"gold\",\"text\":\"Now playing \"}," +
                     "{\"color\":\"blue\",\"text\":\"{MIDI}\"}," +
                     "{\"color\":\"gold\",\"text\":\" | \"}," +
@@ -116,7 +114,6 @@ public class ModProperties {
             save();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Dang it I just disappointed " + SongPlayer.MC.player.getName() + "... Sorry you have to see this error message.");
             SongPlayer.addChatMessage("§cThere was an error when attempting to save your settings.");
         }
     }

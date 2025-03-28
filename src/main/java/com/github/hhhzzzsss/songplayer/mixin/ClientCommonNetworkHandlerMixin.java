@@ -40,13 +40,13 @@ public class ClientCommonNetworkHandlerMixin {
                 if (Util.lastPitch == Util.pitch && Util.lastYaw == Util.yaw) { //prevent sending rotations if you are already facing that direction
                     ci.cancel();
                 } else {
-                    connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, Util.yaw, Util.pitch, true));
+                    connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, Util.yaw, Util.pitch, true, false));
                 }
             } else {
                 if ((movePacket).changesLook()) {
-                    connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch(), true));
+                    connection.send(new PlayerMoveC2SPacket.Full(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, SongPlayer.MC.player.getYaw(), SongPlayer.MC.player.getPitch(), true, false));
                 } else {
-                    connection.send(new PlayerMoveC2SPacket.PositionAndOnGround(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, true));
+                    connection.send(new PlayerMoveC2SPacket.PositionAndOnGround(stage.position.getX() + 0.5, stage.position.getY(), stage.position.getZ() + 0.5, true, false));
                 }
             }
             if (SongPlayer.fakePlayer != null) {
@@ -57,17 +57,6 @@ public class ClientCommonNetworkHandlerMixin {
             Util.pauseSongIfNeeded();
             Util.lagBackCounter = 0;
             SongPlayer.addChatMessage("§6Your song has been paused because you were moved away from your stage. Go back to your stage and type §3" + SongPlayer.prefix + "resume");
-        } else if (packet instanceof TeleportConfirmC2SPacket) { //prevents lagbacks client side
-            Util.lagBackCounter++;
-            TeleportConfirmC2SPacket tpacket = (TeleportConfirmC2SPacket) packet;
-            SongPlayer.addChatMessage(tpacket.getTeleportId() + " - tpacket ID");
-            if (Util.lagBackCounter > 3) {
-                Util.pauseSongIfNeeded();
-                SongPlayer.addChatMessage("§6Your song has been paused because you were moved away from your stage. Go back to your stage and type §3" + SongPlayer.prefix + "resume");
-                Util.lagBackCounter = 0;
-            } else {
-                ci.cancel();
-            }
         } else if (packet instanceof ClientCommandC2SPacket) { //prevents sprinting while playing
             ClientCommandC2SPacket sprinting = (ClientCommandC2SPacket) packet;
             ClientCommandC2SPacket.Mode mode = sprinting.getMode();

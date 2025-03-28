@@ -330,10 +330,10 @@ public class Util {
         try {
             SongPlayer.creativeCommand = ModProperties.getInstance().getConfig().getProperty("creativeCommand", "gamemode creative");
             SongPlayer.survivalCommand = ModProperties.getInstance().getConfig().getProperty("survivalCommand", "gamemode survival");
-            SongPlayer.playSoundCommand = ModProperties.getInstance().getConfig().getProperty("playSoundCommand", "execute at @a run playsound minecraft:block.note_block.{type} record @p ~ ~30000000 ~ 300000000 {pitch} 1");
+            SongPlayer.playSoundCommand = ModProperties.getInstance().getConfig().getProperty("playSoundCommand", "execute as @a at @s run playsound minecraft:block.note_block.{type} record @s ~ ~30000000 ~ 300000000 {pitch} 1");
             SongPlayer.stageType = ModProperties.getInstance().getConfig().getProperty("stageType", "default");
             SongPlayer.showProgressCommand = ModProperties.getInstance().getConfig().getProperty("showProgressCommand",
-                    "execute at @a unless entity @s run title @p actionbar [" +
+                    "execute as @a run title @s actionbar [" +
                             "{\"color\":\"gold\",\"text\":\"Now playing \"}," +
                             "{\"color\":\"blue\",\"text\":\"{MIDI}\"}," +
                             "{\"color\":\"gold\",\"text\":\" | \"}," +

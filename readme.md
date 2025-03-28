@@ -180,6 +180,11 @@ SongPlayer will read the song file and play it on your game. No one else can hea
 This is nice if you want to test out song files before playing them for everyone else, or if you just want to enjoy your songs without any interruptions of other players.
 
 # --- CHANGELOGS ---
+### 3.2.3
+```
+- 1.21.4 support
+
+```
 ### 3.2.2
 ```
 - 1.20.5 & 1.20.6 support (dropped support for 1.20.4 and below)
